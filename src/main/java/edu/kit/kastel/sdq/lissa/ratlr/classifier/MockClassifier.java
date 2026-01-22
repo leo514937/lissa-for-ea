@@ -41,7 +41,7 @@ public class MockClassifier extends Classifier {
     }
 
     @Override
-    public Classifier copyOf() {
+    protected Classifier copyOf() {
         return new MockClassifier(contextStore);
     }
 

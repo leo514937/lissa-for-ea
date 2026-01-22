@@ -27,7 +27,7 @@ public record ClassificationResult(Element source, Element target, double confid
     public ClassificationResult {
         if (confidence < MINIMUM_CONFIDENCE || confidence > 1) {
             throw new IllegalArgumentException(
-                    String.format("Confidence must be between %f and 1", MINIMUM_CONFIDENCE));
+                    String.format("Confidence must be between %1f and 1", MINIMUM_CONFIDENCE));
         }
     }
 

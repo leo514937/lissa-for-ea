@@ -198,7 +198,7 @@ public abstract class Classifier {
      *
      * @return A new instance of the same classifier type
      */
-    public abstract Classifier copyOf();
+    protected abstract Classifier copyOf();
 
     /**
      * Sets the prompt used for classification.

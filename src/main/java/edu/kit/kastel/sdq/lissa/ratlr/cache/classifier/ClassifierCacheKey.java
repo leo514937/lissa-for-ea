@@ -36,6 +36,13 @@ public record ClassifierCacheKey(
         @JsonIgnore String localKey)
         implements CacheKey {
 
+    /**
+     * Factory method to create a new ClassifierCacheKey instance.
+     *
+     * @param cacheParameter The cache parameters including model, seed, and temperature.
+     * @param content The content to be cached.
+     * @return A new ClassifierCacheKey instance.
+     */
     public static ClassifierCacheKey of(ClassifierCacheParameter cacheParameter, String content) {
         return new ClassifierCacheKey(
                 cacheParameter.modelName(),

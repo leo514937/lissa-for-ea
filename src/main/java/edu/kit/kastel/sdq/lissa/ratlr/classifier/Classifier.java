@@ -39,7 +39,13 @@ public abstract class Classifier {
      */
     public static final String CONFIG_NAME_SEPARATOR = "_";
 
+    /**
+     * Logger instance for logging classifier activities.
+     */
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    /**
+     * The number of threads to use for parallel processing.
+     */
     protected final int threads;
     /**
      * The shared context store for pipeline components.
@@ -250,6 +256,14 @@ public abstract class Classifier {
         };
     }
 
+    /**
+     * Creates the classification prompt key based on the provided configuration.
+     * The type of classifier is determined by the first part of the configuration name.
+     *
+     * @param configuration The module configuration for the classifier
+     * @return The classification prompt key
+     * @throws IllegalStateException If the configuration name is not recognized
+     */
     public static String createClassificationPromptKey(ModuleConfiguration configuration) {
         return switch (configuration.name().split(CONFIG_NAME_SEPARATOR)[0]) {
             case MOCK_CLASSIFIER_NAME ->

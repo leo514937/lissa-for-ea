@@ -7,6 +7,8 @@ import org.jspecify.annotations.Nullable;
  * Interface for cache implementations in the LiSSA framework.
  * This interface defines the contract for caching mechanisms that store and retrieve
  * values associated with cache keys.
+ *
+ * @param <K> The type of cache key used in this cache
  */
 public interface Cache<K extends CacheKey> {
     /**
@@ -77,5 +79,10 @@ public interface Cache<K extends CacheKey> {
      */
     boolean containsKey(String key);
 
+    /**
+     * Gets the cache parameters used to configure this cache.
+     *
+     * @return The cache parameters
+     */
     CacheParameter<K> getCacheParameter();
 }

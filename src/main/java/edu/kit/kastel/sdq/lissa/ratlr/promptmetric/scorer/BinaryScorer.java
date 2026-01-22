@@ -20,6 +20,9 @@ public class BinaryScorer implements Scorer {
     private final double correctClassificationScore;
     private final double incorrectClassificationScore;
 
+    /**
+     * Constructs a BinaryScorer with default scores
+     */
     public BinaryScorer() {
         this.correctClassificationScore = MAXIMUM_SCORE;
         this.incorrectClassificationScore = MINIMUM_SCORE;

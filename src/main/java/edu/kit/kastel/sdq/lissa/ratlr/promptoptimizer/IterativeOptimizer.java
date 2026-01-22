@@ -234,7 +234,7 @@ public class IterativeOptimizer implements PromptOptimizer {
         LOGGER.debug("Sending request to LLM (iteration {})...", iteration);
         LOGGER.trace("Full LLM Request:\n{}", request);
 
-        String response = ChatLanguageModelUtils.cachedRequest(request, provider, llm, cache);
+        String response = ChatLanguageModelUtils.cachedRequest(request, llm, cache);
 
         LOGGER.debug("Received response from LLM (iteration {})", iteration);
         LOGGER.trace("Full LLM Response:\n{}", response);
@@ -254,7 +254,7 @@ public class IterativeOptimizer implements PromptOptimizer {
      * @return The optimized prompt extracted from the response
      */
     protected String cachedSanitizedRequest(String request) {
-        String response = ChatLanguageModelUtils.cachedRequest(request, provider, llm, cache);
+        String response = ChatLanguageModelUtils.cachedRequest(request, llm, cache);
         return sanitizePrompt(parseTaggedTextFirst(response, PROMPT_START, PROMPT_END));
     }
 

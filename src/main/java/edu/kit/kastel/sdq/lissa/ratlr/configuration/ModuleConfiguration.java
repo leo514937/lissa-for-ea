@@ -273,6 +273,21 @@ public final class ModuleConfiguration {
     }
 
     /**
+     * Creates a new ModuleConfiguration with the specified argument modified.
+     * This method creates a copy of the current configuration with one argument changed,
+     * without mutating the original configuration.
+     *
+     * @param key The key of the argument to modify
+     * @param value The new value for the argument
+     * @return A new ModuleConfiguration with the modified argument
+     */
+    public ModuleConfiguration with(String key, String value) {
+        Map<String, String> newArguments = new LinkedHashMap<>(this.arguments);
+        newArguments.put(key, value);
+        return new ModuleConfiguration(this.name, newArguments);
+    }
+
+    /**
      * Finalizes this configuration for serialization.
      * This method ensures that all arguments have been retrieved and prepares
      * the configuration for serialization.

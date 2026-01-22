@@ -17,6 +17,8 @@ import edu.kit.kastel.sdq.lissa.ratlr.artifactprovider.ArtifactProvider;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.Classifier;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ConfigurationBuilder;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.elementstore.SourceElementStore;
 import edu.kit.kastel.sdq.lissa.ratlr.elementstore.TargetElementStore;
@@ -185,20 +187,24 @@ public class Evaluation {
         embeddingCreator = EmbeddingCreator.createEmbeddingCreator(configuration.embeddingCreator(), contextStore);
         sourceStore = new SourceElementStore(configuration.sourceStore());
         targetStore = new TargetElementStore(configuration.targetStore());
-        // TODO: careful, this is a hack to allow the optimization to overwrite the prompt and store it to the config
-        //  for serialization. Maybe you can utilize ModuleConfiguration.with() instead?
+
+        Configuration configToUse = configuration;
         if (!prompt.isEmpty()) {
-            configuration
+            assert configuration.classifier() != null;
+            ModuleConfiguration modifiedClassifier = configuration
                     .classifier()
-                    .setArgument(Classifier.createClassificationPromptKey(configuration.classifier()), prompt);
+                    .with(Classifier.createClassificationPromptKey(configuration.classifier()), prompt);
+            configToUse = ConfigurationBuilder.builder(configuration)
+                    .classifier(modifiedClassifier)
+                    .build();
         }
-        classifier = configuration.createClassifier(contextStore);
-        aggregator = ResultAggregator.createResultAggregator(configuration.resultAggregator(), contextStore);
+        classifier = configToUse.createClassifier(contextStore);
+        aggregator = ResultAggregator.createResultAggregator(configToUse.resultAggregator(), contextStore);
 
         traceLinkIdPostProcessor = TraceLinkIdPostprocessor.createTraceLinkIdPostprocessor(
-                configuration.traceLinkIdPostprocessor(), contextStore);
+                configToUse.traceLinkIdPostprocessor(), contextStore);
 
-        configuration.serializeAndDestroyConfiguration();
+        configToUse.serializeAndDestroyConfiguration();
     }
 
     /**

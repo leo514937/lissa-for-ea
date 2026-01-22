@@ -142,12 +142,13 @@ public final class ModuleConfiguration {
         if (finalized) {
             throw new IllegalStateException(ALREADY_FINALIZED_FOR_SERIALIZATION);
         }
-        arguments.put(key, value);
-        String retrievedArgument = retrievedArguments.put(key, value);
+        String retrievedArgument = retrievedArguments.get(key);
         if (retrievedArgument != null && !retrievedArgument.equals(value)) {
             throw new IllegalArgumentException("Default argument for key " + key + " already set to "
                     + retrievedArgument + " and cannot be changed to " + value);
         }
+        arguments.put(key, value);
+        retrievedArguments.put(key, value);
     }
 
     /**

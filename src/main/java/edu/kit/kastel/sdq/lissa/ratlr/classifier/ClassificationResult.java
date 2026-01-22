@@ -9,18 +9,25 @@ import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
  * along with a confidence score indicating the strength of the relationship.
  * @param source The source element in the trace link relationship
  * @param target The target element in the trace link relationship
- * @param confidence The confidence score of the classification, ranging from 0.0 to 1.0
+ * @param confidence The confidence score of the classification, ranging from {@value MINIMUM_CONFIDENCE} to 1.0
  *                   A score of 1.0 indicates maximum confidence in the relationship
  */
 public record ClassificationResult(Element source, Element target, double confidence) {
+
+    /**
+     *  The minimal valid confidence score. This value symbolises no confidence in the classification.
+     */
+    public static final double MINIMUM_CONFIDENCE = 0.0;
+
     /**
      * Validates the confidence score during record construction.
      *
      * @throws IllegalArgumentException If the confidence score is not between 0 and 1
      */
     public ClassificationResult {
-        if (confidence < 0 || confidence > 1) {
-            throw new IllegalArgumentException("Confidence must be between 0 and 1");
+        if (confidence < MINIMUM_CONFIDENCE || confidence > 1) {
+            throw new IllegalArgumentException(
+                    String.format("Confidence must be between %f and 1", MINIMUM_CONFIDENCE));
         }
     }
 

@@ -133,7 +133,6 @@ public class IterativeFeedbackOptimizer extends IterativeOptimizer {
             modifiedPrompt = cachedSanitizedRequest(request, i);
 
             LOGGER.debug("Received and extracted new prompt:\n{}", modifiedPrompt);
-            modifiedPrompt = cachedSanitizedRequest(request);
             i++;
         } while (i < maximumIterations && promptScore < thresholdScore);
 

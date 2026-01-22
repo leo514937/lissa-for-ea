@@ -142,8 +142,8 @@ public abstract class GlobalMetric implements Metric {
                 if (tasks.size() > 1) {
                     logger.debug("  -> REJECTED (empty result)");
                 }
-                // TODO: Is there a constant for use instead of 0.0?
-                rejectedTraceLinks.add(new ClassificationResult(task.source(), task.target(), 0.0));
+                rejectedTraceLinks.add(new ClassificationResult(
+                        task.source(), task.target(), ClassificationResult.MINIMUM_CONFIDENCE));
             }
         }
 
@@ -181,7 +181,6 @@ public abstract class GlobalMetric implements Metric {
     /**
      * Default method to aggregate classification results into trace links.
      * Each classification result is converted into a trace link using the identifiers of the source and target elements.
-     * TODO: consider extracting into a aggregator implementation ???
      *
      * @param classificationResults The list of classification results to be aggregated.
      * @return A set of trace links derived from the classification results.

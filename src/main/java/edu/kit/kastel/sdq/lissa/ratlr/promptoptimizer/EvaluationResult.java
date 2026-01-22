@@ -18,8 +18,8 @@ public record EvaluationResult<T>(Element source, Element target, T groundTruth,
     }
 
     /**
-     * Checks if the classification matches the ground truth.
-     * @return true if the classification is equal to the ground truth, false otherwise
+     * Checks if the classification does not match the ground truth.
+     * @return false if the classification is equal to the ground truth, true otherwise
      */
     public boolean isIncorrect() {
         return !groundTruth.equals(classification);

@@ -29,6 +29,11 @@ import edu.kit.kastel.sdq.lissa.ratlr.utils.ChatLanguageModelUtils;
 
 import dev.langchain4j.model.chat.ChatModel;
 
+/**
+ * An iterative prompt optimizer that refines a given prompt through multiple iterations using a language model.
+ * This optimizer does not consider any feedback and naively modifies it
+ * until a specified performance threshold is met or the maximum number of iterations is reached.
+ */
 public class IterativeOptimizer implements PromptOptimizer {
 
     /**

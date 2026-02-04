@@ -2,7 +2,7 @@
 package edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -182,7 +182,7 @@ public class IterativeFeedbackOptimizer extends IterativeOptimizer {
      * @return A set of misclassified classification tasks
      */
     private Set<ClassificationTask> getMisclassifiedTasks(String prompt, Collection<ClassificationTask> tasks) {
-        Set<ClassificationTask> misclassifiedTasks = new HashSet<>();
+        Set<ClassificationTask> misclassifiedTasks = new LinkedHashSet<>();
         LOGGER.debug("Checking {} tasks for misclassifications...", tasks.size());
         int taskNumber = 0;
         for (ClassificationTask task : tasks) {

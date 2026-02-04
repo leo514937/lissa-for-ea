@@ -2,7 +2,7 @@
 
 ## Overview
 
-Prompt optimization in LiSSA-RATLR enables the automatic systematic refinement of prompts used for taceability link recovery.
+Prompt optimization in LiSSA-RATLR enables the automatic systematic refinement of prompts used for traceability link recovery.
 By leveraging various optimization strategies and evaluation metrics, the effectiveness of prompts may be increased, leading to improved classification accuracy and overall performance.
 This also enables us to quantify the importance of well designed prompts in the context of traceability link recovery.
 

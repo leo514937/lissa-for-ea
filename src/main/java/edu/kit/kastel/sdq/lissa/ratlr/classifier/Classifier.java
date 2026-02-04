@@ -4,7 +4,7 @@ package edu.kit.kastel.sdq.lissa.ratlr.classifier;
 import static edu.kit.kastel.sdq.lissa.ratlr.classifier.MockClassifier.MOCK_CLASSIFIER_NAME;
 import static edu.kit.kastel.sdq.lissa.ratlr.classifier.ReasoningClassifier.REASONING_CLASSIFIER_NAME;
 import static edu.kit.kastel.sdq.lissa.ratlr.classifier.SimpleClassifier.SIMPLE_CLASSIFIER_NAME;
-import static edu.kit.kastel.sdq.lissa.ratlr.configuration.ConfigurationInterface.CONFIG_NAME_SEPARATOR;
+import static edu.kit.kastel.sdq.lissa.ratlr.configuration.Configuration.CONFIG_NAME_SEPARATOR;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator;
-import edu.kit.kastel.sdq.lissa.ratlr.configuration.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.EvaluationConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.GoldStandardConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.OptimizerConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
@@ -56,8 +56,8 @@ public final class Statistics {
      * </ol>
      *
      * @param traceLinks Set of identified trace links
-     * @param configFile Configuration file used for the analysis
-     * @param configuration Configuration object used for the analysis
+     * @param configFile Evaluation configuration file used for the analysis
+     * @param configuration Evaluation configuration object used for the analysis
      * @param sourceArtifacts Number of source artifacts
      * @param targetArtifacts Number of target artifacts
      * @throws UncheckedIOException If there are issues writing the statistics file
@@ -65,7 +65,7 @@ public final class Statistics {
     public static void generateStatistics(
             Set<TraceLink> traceLinks,
             File configFile,
-            Configuration configuration,
+            EvaluationConfiguration configuration,
             int sourceArtifacts,
             int targetArtifacts)
             throws UncheckedIOException {
@@ -158,7 +158,7 @@ public final class Statistics {
      *     <li>Handles column swapping if configured</li>
      * </ol>
      *
-     * @param goldStandardConfiguration Configuration for the gold standard file
+     * @param goldStandardConfiguration EvaluationConfiguration for the gold standard file
      * @return Set of valid trace links from the gold standard
      * @throws UncheckedIOException If there are issues reading the gold standard file
      */
@@ -190,11 +190,11 @@ public final class Statistics {
      * </ol>
      *
      * @param traceLinks Set of trace links to save
-     * @param configFile Configuration file used for the analysis
-     * @param configuration Configuration object used for the analysis
+     * @param configFile EvaluationConfiguration file used for the analysis
+     * @param configuration EvaluationConfiguration object used for the analysis
      * @throws UncheckedIOException If there are issues writing the trace links file
      */
-    public static void saveTraceLinks(Set<TraceLink> traceLinks, File configFile, Configuration configuration)
+    public static void saveTraceLinks(Set<TraceLink> traceLinks, File configFile, EvaluationConfiguration configuration)
             throws UncheckedIOException {
         var fileName = "traceLinks-" + configuration.getConfigurationIdentifierForFile(configFile.getName()) + ".csv";
         saveTraceLinks(traceLinks, fileName);
@@ -237,8 +237,8 @@ public final class Statistics {
      *     <li>Generates a detailed report with configuration and results</li>
      *     <li>Saves the report to a markdown file</li>
      * </ol>
-     * @param configFile Configuration file used for the optimization
-     * @param configuration Configuration object used for the optimization
+     * @param configFile EvaluationConfiguration file used for the optimization
+     * @param configuration EvaluationConfiguration object used for the optimization
      * @param prompt Optimized prompt generated during the optimization
      * @throws UncheckedIOException If there are issues writing the statistics file
      */
@@ -283,7 +283,7 @@ public final class Statistics {
     }
 
     private static String configurationToString(String configurationIdentifier, String configurationSummary) {
-        return "## Configuration ("
+        return "## EvaluationConfiguration ("
                 + new SimpleDateFormat("yyyy-MM-dd_HH-mmZZZ").format(new Date())
                 + " -- "
                 + configurationIdentifier

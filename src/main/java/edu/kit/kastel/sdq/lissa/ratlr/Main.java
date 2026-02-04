@@ -1,4 +1,4 @@
-/* Licensed under MIT 2025. */
+/* Licensed under MIT 2025-2026. */
 package edu.kit.kastel.sdq.lissa.ratlr;
 
 import java.io.File;
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.kit.kastel.sdq.lissa.ratlr.artifactprovider.ArtifactProvider;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.Classifier;
-import edu.kit.kastel.sdq.lissa.ratlr.configuration.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.EvaluationConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.elementstore.SourceElementStore;
 import edu.kit.kastel.sdq.lissa.ratlr.elementstore.TargetElementStore;
@@ -70,7 +70,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         var configFilePath = args.length == 0 ? "config.json" : args[0];
         var configFile = new File(configFilePath);
-        Configuration configuration = new ObjectMapper().readValue(configFile, Configuration.class);
+        EvaluationConfiguration configuration = new ObjectMapper().readValue(configFile, EvaluationConfiguration.class);
         CacheManager.setCacheDir(configuration.cacheDir());
 
         ContextStore contextStore = new ContextStore();

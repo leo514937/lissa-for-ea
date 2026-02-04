@@ -28,11 +28,11 @@ import io.soabase.recordbuilder.core.RecordBuilder;
  */
 @RecordBuilder()
 public record OptimizerConfiguration(
-        @JsonUnwrapped Configuration evaluationConfiguration,
+        @JsonUnwrapped EvaluationConfiguration evaluationConfiguration,
         @JsonProperty("prompt_optimizer") ModuleConfiguration promptOptimizer,
         @JsonProperty("metric") ModuleConfiguration metric,
         @JsonProperty("evaluator") ModuleConfiguration evaluator)
-        implements OptimizerConfigurationBuilder.With, ConfigurationInterface {
+        implements OptimizerConfigurationBuilder.With, Configuration {
 
     @Override
     public String serializeAndDestroyConfiguration() {

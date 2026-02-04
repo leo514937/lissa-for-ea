@@ -3,7 +3,7 @@ package edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer;
 
 import static edu.kit.kastel.sdq.lissa.ratlr.elementstore.ElementStoreOperations.reduceSourceElementStore;
 import static edu.kit.kastel.sdq.lissa.ratlr.elementstore.ElementStoreOperations.reduceTargetElementStore;
-import static edu.kit.kastel.sdq.lissa.ratlr.promptmetric.MetricUtils.MAXIMUM_SCORE;
+import static edu.kit.kastel.sdq.lissa.ratlr.promptmetric.Metric.MAXIMUM_SCORE;
 import static edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.PromptOptimizationUtils.getClassificationTasks;
 import static edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.PromptOptimizationUtils.parseTaggedTextFirst;
 import static edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.PromptOptimizationUtils.sanitizePrompt;
@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.kit.kastel.sdq.lissa.ratlr.cache.Cache;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
+import edu.kit.kastel.sdq.lissa.ratlr.cache.classifier.ClassifierCacheKey;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.ChatLanguageModelProvider;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationTask;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
@@ -114,7 +115,7 @@ public class IterativeOptimizer implements PromptOptimizer {
     /**
      * The cache used to store and retrieve prompt optimization LLM requests.
      */
-    protected final Cache cache;
+    protected final Cache<ClassifierCacheKey> cache;
 
     /**
      * Provider for the language model used in classification.
@@ -170,7 +171,7 @@ public class IterativeOptimizer implements PromptOptimizer {
         this.provider = new ChatLanguageModelProvider(configuration);
         this.template =
                 configuration.argumentAsString(OPTIMIZATION_TEMPLATE_CONFIGURATION_KEY, DEFAULT_OPTIMIZATION_TEMPLATE);
-        configuration.setArgument(MAXIMUM_ITERATIONS_CONFIGURATION_KEY, maximumIterations);
+        configuration.argumentAsInt(MAXIMUM_ITERATIONS_CONFIGURATION_KEY, maximumIterations);
         this.maximumIterations = maximumIterations;
         this.optimizationPrompt = configuration.argumentAsString(BASE_PROMPT_CONFIGURATION_KEY, "");
         this.thresholdScore =
@@ -185,8 +186,20 @@ public class IterativeOptimizer implements PromptOptimizer {
 
     @Override
     public String optimize(SourceElementStore sourceStore, TargetElementStore targetStore) {
-        var source = sourceStore.getAllElements(false).getFirst();
-        Element target = targetStore.findSimilar(source).getFirst();
+        var sourceElements = sourceStore.getAllElements(false);
+        if (sourceElements.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Source element store is empty. Cannot optimize prompt without source elements.");
+        }
+
+        var source = sourceElements.getFirst();
+        var similarTargets = targetStore.findSimilar(source);
+        if (similarTargets.isEmpty()) {
+            throw new IllegalArgumentException("Target element store has no similar elements for source: "
+                    + source.first().getIdentifier() + ". Cannot optimize prompt without target elements.");
+        }
+
+        Element target = similarTargets.getFirst();
         formattedTemplate = template.replace(
                         SOURCE_TYPE_PLACEHOLDER, source.first().getType())
                 .replace(TARGET_TYPE_PLACEHOLDER, target.getType());

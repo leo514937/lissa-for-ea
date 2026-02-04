@@ -4,6 +4,7 @@ package edu.kit.kastel.sdq.lissa.ratlr.classifier;
 import static edu.kit.kastel.sdq.lissa.ratlr.classifier.MockClassifier.MOCK_CLASSIFIER_NAME;
 import static edu.kit.kastel.sdq.lissa.ratlr.classifier.ReasoningClassifier.REASONING_CLASSIFIER_NAME;
 import static edu.kit.kastel.sdq.lissa.ratlr.classifier.SimpleClassifier.SIMPLE_CLASSIFIER_NAME;
+import static edu.kit.kastel.sdq.lissa.ratlr.configuration.ConfigurationInterface.CONFIG_NAME_SEPARATOR;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,11 +35,6 @@ import edu.kit.kastel.sdq.lissa.ratlr.utils.Pair;
  * </p>
  */
 public abstract class Classifier {
-    /**
-     * Separator used in configuration names.
-     */
-    public static final String CONFIG_NAME_SEPARATOR = "_";
-
     /**
      * Logger instance for logging classifier activities.
      */

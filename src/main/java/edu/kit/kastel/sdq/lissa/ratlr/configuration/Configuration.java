@@ -1,9 +1,8 @@
-/* Licensed under MIT 2025. */
+/* Licensed under MIT 2025-2026. */
 package edu.kit.kastel.sdq.lissa.ratlr.configuration;
 
 import java.io.UncheckedIOException;
 import java.util.List;
-import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
@@ -15,7 +14,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.Classifier;
 import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
-import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
 
 import io.soabase.recordbuilder.core.RecordBuilder;
 
@@ -97,7 +95,7 @@ public record Configuration(
          * Configuration for the trace link ID postprocessor.
          */
         @JsonProperty("tracelinkid_postprocessor") @Nullable ModuleConfiguration traceLinkIdPostprocessor)
-        implements ConfigurationBuilder.With {
+        implements ConfigurationBuilder.With, ConfigurationInterface {
 
     /**
      * Serializes this configuration to JSON and finalizes all module configurations.
@@ -107,7 +105,8 @@ public record Configuration(
      * @return A JSON string representation of this configuration
      * @throws UncheckedIOException If the configuration cannot be serialized
      */
-    public String serializeAndDestroyConfiguration() throws UncheckedIOException {
+    @Override
+    public String serializeAndDestroyConfiguration() {
         sourceArtifactProvider.finalizeForSerialization();
         targetArtifactProvider.finalizeForSerialization();
         sourcePreprocessor.finalizeForSerialization();
@@ -161,19 +160,6 @@ public record Configuration(
                 + classifiers + ", resultAggregator="
                 + resultAggregator + ", traceLinkIdPostprocessor="
                 + traceLinkIdPostprocessor + '}';
-    }
-
-    /**
-     * Generates a unique identifier for this configuration.
-     * The identifier is created by combining the given prefix with a hash of
-     * the configuration's string representation.
-     *
-     * @param prefix The prefix to use for the identifier
-     * @return A unique identifier for this configuration
-     * @throws NullPointerException If prefix is null
-     */
-    public String getConfigurationIdentifierForFile(String prefix) {
-        return Objects.requireNonNull(prefix) + "_" + KeyGenerator.generateKey(this.toString());
     }
 
     /**

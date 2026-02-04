@@ -117,7 +117,7 @@ public class IterativeFeedbackOptimizer extends IterativeOptimizer {
                 Set<ClassificationTask> misclassified = getMisclassifiedTasks(modifiedPrompt, examples);
                 LOGGER.debug("Found {} misclassified tasks out of {} total", misclassified.size(), examples.size());
 
-                String feedbackPrompt = generateFeedbackPrompt(modifiedPrompt, examples);
+                String feedbackPrompt = generateFeedbackPrompt(misclassified);
 
                 LOGGER.debug(
                         "Generated feedback prompt with {} examples", Math.min(feedbackSize, misclassified.size()));
@@ -148,14 +148,12 @@ public class IterativeFeedbackOptimizer extends IterativeOptimizer {
     /**
      * Fills the feedback prompt with examples of misclassified trace links using the FEEDBACK_EXAMPLE_BLOCK template.
      *
-     * @param prompt The prompt for which to generate feedback
-     * @param tasks  The classification tasks on which the prompt should be evaluated
+     * @param misclassifiedTasks The set of misclassified classification tasks to generate feedback from
      * @return a formatted feedback prompt containing examples of misclassified trace links
      */
-    private String generateFeedbackPrompt(String prompt, Collection<ClassificationTask> tasks) {
+    private String generateFeedbackPrompt(Set<ClassificationTask> misclassifiedTasks) {
         StringBuilder feedback = new StringBuilder();
 
-        Set<ClassificationTask> misclassifiedTasks = getMisclassifiedTasks(prompt, tasks);
         List<ClassificationTask> sampledTasks = sampleStrategy.sample(misclassifiedTasks, feedbackSize);
 
         LOGGER.debug("Generating feedback from {} sampled misclassified tasks:", sampledTasks.size());

@@ -1,6 +1,8 @@
 /* Licensed under MIT 2025-2026. */
 package edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer;
 
+import static edu.kit.kastel.sdq.lissa.ratlr.configuration.ConfigurationInterface.CONFIG_NAME_SEPARATOR;
+
 import java.util.Set;
 
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
@@ -13,11 +15,6 @@ import edu.kit.kastel.sdq.lissa.ratlr.promptmetric.Metric;
  * prompt optimizer implementations.
  */
 public final class OptimizerFactory {
-
-    /**
-     * Separator used in configuration names.
-     */
-    public static final String CONFIG_NAME_SEPARATOR = "_";
 
     private OptimizerFactory() {
         throw new IllegalAccessError("Factory class should not be instantiated.");

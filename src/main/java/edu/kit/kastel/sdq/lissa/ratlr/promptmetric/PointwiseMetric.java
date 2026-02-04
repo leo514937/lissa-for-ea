@@ -62,15 +62,10 @@ public class PointwiseMetric implements Metric {
      */
     @Override
     public Double getMetric(String prompt, List<ClassificationTask> examples) {
-        List<Double> scores = new ArrayList<>();
         List<ClassificationTask> examplesToCompute = new ArrayList<>(examples);
         List<ClassificationResult> classifications = classify(prompt, examplesToCompute);
         List<Double> computedScores = scorer.score(examplesToCompute, classifications);
-        for (int i = 0; i < examplesToCompute.size(); i++) {
-            ClassificationTask example = examplesToCompute.get(i);
-            scores.add(computedScores.get(i));
-        }
-        return reductor.reduce(scores);
+        return reductor.reduce(new ArrayList<>(computedScores));
     }
 
     @Override

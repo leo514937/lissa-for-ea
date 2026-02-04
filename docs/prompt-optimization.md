@@ -17,7 +17,7 @@ Global metrics evaluate the prompts performance across the entire test dataset.
 Pointwise metrics scores the performance of prompts on individual data points and reduces the results into a single numeric performance value.
 If a pointwise metric is used, different scoring and reduction strategies can be configured and combined as desired.
 
-Custom metrics can be added either through implementation of the [`Global Metrics`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/promptmetric/GlobalMetric.java) abstract class or though implementing new scoring and reduction strategies for pointwise metrics.
+Custom metrics can be added either through implementation of the [`Global Metrics`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/promptmetric/GlobalMetric.java) abstract class or through implementing new scoring and reduction strategies for pointwise metrics.
 
 #### Available Metrics
 

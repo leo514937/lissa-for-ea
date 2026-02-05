@@ -175,6 +175,6 @@ public abstract class GlobalMetric implements Metric {
         return classificationResults.stream()
                 .map(result -> TraceLink.of(
                         result.source().getIdentifier(), result.target().getIdentifier()))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .collect(Collectors.toSet());
     }
 }

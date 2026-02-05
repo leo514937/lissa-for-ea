@@ -3,8 +3,6 @@ package edu.kit.kastel.sdq.lissa.ratlr.configuration;
 
 import java.io.UncheckedIOException;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
@@ -59,7 +57,6 @@ public record OptimizerConfiguration(
      * @return A string representation of this configuration
      */
     @Override
-    @NotNull
     public String toString() {
         return "Configuration{" + "evaluationConfiguration="
                 + evaluationConfiguration + ", metric="

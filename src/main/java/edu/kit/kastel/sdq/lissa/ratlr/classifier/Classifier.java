@@ -260,7 +260,7 @@ public abstract class Classifier {
      * @return The classification prompt key
      * @throws IllegalStateException If the configuration name is not recognized
      */
-    public static String createClassificationPromptKey(ModuleConfiguration configuration) {
+    public static String getClassificationPromptConfigurationKey(ModuleConfiguration configuration) {
         return switch (configuration.name().split(CONFIG_NAME_SEPARATOR)[0]) {
             case MOCK_CLASSIFIER_NAME ->
                 throw new UnsupportedOperationException(

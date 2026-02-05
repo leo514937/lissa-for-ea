@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +63,7 @@ import edu.kit.kastel.sdq.lissa.ratlr.resultaggregator.ResultAggregator;
 public class Evaluation {
 
     private static final Logger logger = LoggerFactory.getLogger(Evaluation.class);
-    private final Path configFile;
+    private final @Nullable Path configFile;
 
     private final EvaluationConfiguration configuration;
 
@@ -149,7 +150,6 @@ public class Evaluation {
      */
     public Evaluation(EvaluationConfiguration config) throws IOException {
         this.configuration = config;
-        // TODO maybe dont?
         this.configFile = null;
         setup("");
     }
@@ -193,7 +193,7 @@ public class Evaluation {
             assert configuration.classifier() != null;
             ModuleConfiguration modifiedClassifier = configuration
                     .classifier()
-                    .with(Classifier.createClassificationPromptKey(configuration.classifier()), prompt);
+                    .with(Classifier.getClassificationPromptConfigurationKey(configuration.classifier()), prompt);
             configToUse = EvaluationConfigurationBuilder.builder(configuration)
                     .classifier(modifiedClassifier)
                     .build();
@@ -234,10 +234,15 @@ public class Evaluation {
         traceLinks = traceLinkIdPostProcessor.postprocess(traceLinks);
 
         logger.info("Evaluating Results");
+        String configFileName;
+        if (configFile != null) {
+            configFileName = configFile.toFile().getName();
+        } else {
+            configFileName = "in_memory_configuration.json";
+        }
         Statistics.generateStatistics(
-                traceLinks, configFile.toFile(), configuration, getSourceArtifactCount(), getTargetArtifactCount());
-        Statistics.saveTraceLinks(traceLinks, configFile.toFile(), configuration);
-
+                traceLinks, configFileName, configuration, getSourceArtifactCount(), getTargetArtifactCount());
+        Statistics.saveTraceLinks(traceLinks, configFileName, configuration);
         CacheManager.getDefaultInstance().flush();
 
         return traceLinks;

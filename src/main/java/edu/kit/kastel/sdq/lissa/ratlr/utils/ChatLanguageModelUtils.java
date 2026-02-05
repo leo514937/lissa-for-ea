@@ -4,7 +4,6 @@ package edu.kit.kastel.sdq.lissa.ratlr.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,6 @@ public final class ChatLanguageModelUtils {
      * @return A list of replies from the language model
      * @throws IllegalArgumentException If the number of requests is less than 1
      */
-    @NotNull
     public static List<String> nCachedRequest(
             String request, ChatModel llm, Cache<ClassifierCacheKey> cache, int numberOfRequests) {
         if (numberOfRequests < 1) {
@@ -44,7 +42,6 @@ public final class ChatLanguageModelUtils {
 
         String cacheKey = numberOfRequests + " results: \n" + request;
 
-        LOGGER.debug("Request hash: {}", Integer.toHexString(request.hashCode()));
         List<String> responses = cache.get(cacheKey, List.class);
         if (responses == null || responses.size() < numberOfRequests) {
             LOGGER.debug("CACHE MISS - Making {} new LLM request(s)", numberOfRequests);

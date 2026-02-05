@@ -125,8 +125,8 @@ public class Main {
 
         logger.info("Evaluating Results");
         Statistics.generateStatistics(
-                traceLinks, configFile, configuration, sourceArtifacts.size(), targetArtifacts.size());
-        Statistics.saveTraceLinks(traceLinks, configFile, configuration);
+                traceLinks, configFile.getName(), configuration, sourceArtifacts.size(), targetArtifacts.size());
+        Statistics.saveTraceLinks(traceLinks, configFile.getName(), configuration);
 
         CacheManager.getDefaultInstance().flush();
     }

@@ -49,8 +49,8 @@ Custom optimizers can be added by implementing the [`Prompt Optimizer`](../src/m
   The most basic optimizer that makes changes to the prompt in each iteration.
   It simply queries the large language model to improve the current prompt using an optimization prompt.
   The new prompt is naively carried over to the next iteration without any further checks.
-  - `simple`: Runs for exactly 1 iteration
-  - `iterative`: Runs for the configured number of iterations
+  - `simple`: Defaults to one (1) iteration
+  - `iterative`: Defaults to five (5) iterations
 - **[`Feedback-Based Optimizer`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/promptoptimizer/IterativeFeedbackOptimizer.java)** (`feedback`):
   The iterative feedback optimizer improves prompts by leveraging feedback from the large language model.
   In each iteration, it queries the model with an additional feedback text on the current prompt.
@@ -97,9 +97,7 @@ The optimization process generally follows these steps:
 
 1. **Baseline Evaluation (Optional)**: If evaluation configurations are provided, the baseline performance of the original prompt is measured.
 2. **Prompt Optimization**: The prompt optimizer is executed using the specified optimization configuration. The prompt is refined iteratively based on the selected metric.
-3. **Post-Optimization Evaluation (Optional)**: If evaluation configurations are provided, the optimized
-
-Intermediate top results of each iteration step are also saved and evaluated to track progress over time.
+3. **Post-Optimization Evaluation (Optional)**: If evaluation configurations are provided, the optimized prompt is evaluated to measure differences over the baseline.
 
 ## Output and Results
 

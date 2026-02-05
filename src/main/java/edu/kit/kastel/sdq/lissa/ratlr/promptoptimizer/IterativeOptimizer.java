@@ -176,8 +176,7 @@ public class IterativeOptimizer implements PromptOptimizer {
         this.provider = new ChatLanguageModelProvider(configuration);
         this.template =
                 configuration.argumentAsString(OPTIMIZATION_TEMPLATE_CONFIGURATION_KEY, DEFAULT_OPTIMIZATION_TEMPLATE);
-        configuration.argumentAsInt(MAXIMUM_ITERATIONS_CONFIGURATION_KEY, maximumIterations);
-        this.maximumIterations = maximumIterations;
+        this.maximumIterations = configuration.argumentAsInt(MAXIMUM_ITERATIONS_CONFIGURATION_KEY, maximumIterations);
         this.optimizationPrompt = configuration.argumentAsString(BASE_PROMPT_CONFIGURATION_KEY, "");
         this.thresholdScore =
                 configuration.argumentAsDouble(THRESHOLD_SCORE_CONFIGURATION_KEY, DEFAULT_THRESHOLD_SCORE);

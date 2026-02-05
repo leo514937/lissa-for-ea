@@ -56,7 +56,7 @@ public final class Statistics {
      * </ol>
      *
      * @param traceLinks Set of identified trace links
-     * @param configFile Evaluation configuration file used for the analysis
+     * @param configFileName  Evaluation configuration file name used for the analysis
      * @param configuration Evaluation configuration object used for the analysis
      * @param sourceArtifacts Number of source artifacts
      * @param targetArtifacts Number of target artifacts
@@ -64,13 +64,13 @@ public final class Statistics {
      */
     public static void generateStatistics(
             Set<TraceLink> traceLinks,
-            File configFile,
+            String configFileName,
             EvaluationConfiguration configuration,
             int sourceArtifacts,
             int targetArtifacts)
             throws UncheckedIOException {
         generateStatistics(
-                configuration.getConfigurationIdentifierForFile(configFile.getName()),
+                configuration.getConfigurationIdentifierForFile(configFileName),
                 configuration.serializeAndDestroyConfiguration(),
                 traceLinks,
                 configuration.goldStandardConfiguration(),
@@ -190,13 +190,14 @@ public final class Statistics {
      * </ol>
      *
      * @param traceLinks Set of trace links to save
-     * @param configFile EvaluationConfiguration file used for the analysis
-     * @param configuration EvaluationConfiguration object used for the analysis
+     * @param configFileName Evaluation configuration file name used for the analysis
+     * @param configuration Evaluation configuration object used for the analysis
      * @throws UncheckedIOException If there are issues writing the trace links file
      */
-    public static void saveTraceLinks(Set<TraceLink> traceLinks, File configFile, EvaluationConfiguration configuration)
+    public static void saveTraceLinks(
+            Set<TraceLink> traceLinks, String configFileName, EvaluationConfiguration configuration)
             throws UncheckedIOException {
-        var fileName = "traceLinks-" + configuration.getConfigurationIdentifierForFile(configFile.getName()) + ".csv";
+        var fileName = "traceLinks-" + configuration.getConfigurationIdentifierForFile(configFileName) + ".csv";
         saveTraceLinks(traceLinks, fileName);
     }
 
@@ -283,7 +284,7 @@ public final class Statistics {
     }
 
     private static String configurationToString(String configurationIdentifier, String configurationSummary) {
-        return "## EvaluationConfiguration ("
+        return "## Configuration ("
                 + new SimpleDateFormat("yyyy-MM-dd_HH-mmZZZ").format(new Date())
                 + " -- "
                 + configurationIdentifier

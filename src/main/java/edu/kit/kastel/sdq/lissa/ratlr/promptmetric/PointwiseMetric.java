@@ -2,11 +2,9 @@
 package edu.kit.kastel.sdq.lissa.ratlr.promptmetric;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.jetbrains.annotations.NotNull;
 
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationResult;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationTask;
@@ -83,7 +81,7 @@ public class PointwiseMetric implements Metric {
         classifier.setClassificationPrompt(prompt);
         List<ClassificationResult> classifications = classifier.classify(examples);
 
-        Map<String, ClassificationResult> classificationMap = new HashMap<>();
+        Map<String, ClassificationResult> classificationMap = new LinkedHashMap<>();
         for (ClassificationResult classification : classifications) {
             classificationMap.put(getClassificationKey(classification), classification);
         }
@@ -94,17 +92,14 @@ public class PointwiseMetric implements Metric {
         return results;
     }
 
-    @NotNull
     private static String getClassificationKey(ClassificationTask task) {
         return getClassificationKey(task.source().toString(), task.target().toString());
     }
 
-    @NotNull
     private static String getClassificationKey(ClassificationResult result) {
         return getClassificationKey(result.source().toString(), result.target().toString());
     }
 
-    @NotNull
     private static String getClassificationKey(String first, String second) {
         return "%s-%s".formatted(first, second);
     }

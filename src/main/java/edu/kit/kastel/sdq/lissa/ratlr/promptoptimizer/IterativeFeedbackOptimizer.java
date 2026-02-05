@@ -23,6 +23,8 @@ import edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.samplestrategy.SamplerFact
  */
 public class IterativeFeedbackOptimizer extends IterativeOptimizer {
 
+    private static final String LOGGER_SEPATOR_LINE = "=".repeat(80);
+
     /**
      * The default template for the feedback prompt.
      * This template is used to generate feedback based on misclassified trace links.
@@ -93,19 +95,12 @@ public class IterativeFeedbackOptimizer extends IterativeOptimizer {
         double promptScore;
         String modifiedPrompt = optimizationPrompt;
 
-        LOGGER.debug("=".repeat(80));
-        LOGGER.debug("Starting feedback optimization with training examples {}", examples);
+        LOGGER.debug(LOGGER_SEPATOR_LINE);
         LOGGER.debug("Maximum iterations: {}, Threshold score: {}", maximumIterations, thresholdScore);
         LOGGER.debug("Feedback size: {}", feedbackSize);
-        LOGGER.debug("=".repeat(80));
+        LOGGER.debug(LOGGER_SEPATOR_LINE);
 
         do {
-            LOGGER.debug("\n" + "=".repeat(80));
-            LOGGER.debug("ITERATION {}", i);
-            LOGGER.debug("=".repeat(80));
-            LOGGER.debug("Current Prompt:\n{}", modifiedPrompt);
-            LOGGER.debug("-".repeat(80));
-
             // Evaluate prompt and log individual classifications
             LOGGER.debug("Evaluating prompt on {} classification tasks...", examples.size());
             promptScore = this.metric.getMetric(modifiedPrompt, examples);
@@ -117,31 +112,25 @@ public class IterativeFeedbackOptimizer extends IterativeOptimizer {
                 Set<ClassificationTask> misclassified = getMisclassifiedTasks(modifiedPrompt, examples);
                 LOGGER.debug("Found {} misclassified tasks out of {} total", misclassified.size(), examples.size());
 
-                String feedbackPrompt = generateFeedbackPrompt(misclassified);
+                String filledFeedbackPrompt = generateFeedbackPrompt(misclassified);
 
                 LOGGER.debug(
                         "Generated feedback prompt with {} examples", Math.min(feedbackSize, misclassified.size()));
-                LOGGER.debug("Feedback Prompt:\n{}", feedbackPrompt);
+                LOGGER.debug("Feedback Prompt:\n{}", filledFeedbackPrompt);
 
-                request = feedbackPrompt + request;
+                request = filledFeedbackPrompt + request;
             }
 
-            LOGGER.debug("-".repeat(80));
-            LOGGER.debug("Sending optimization request to LLM...");
             LOGGER.debug("Full Request:\n{}", request);
 
             modifiedPrompt = cachedSanitizedRequest(request, i);
 
             LOGGER.debug("Received and extracted new prompt:\n{}", modifiedPrompt);
+            LOGGER.debug(LOGGER_SEPATOR_LINE);
             i++;
         } while (i < maximumIterations && promptScore < thresholdScore);
 
         LOGGER.info("Iterations {}: {}s = {}", i, this.metric.getName(), promptScores);
-        LOGGER.debug("=".repeat(80));
-        LOGGER.debug("Optimization completed after {} iterations", i);
-        LOGGER.debug("Final score: {}", promptScore);
-        LOGGER.debug("Final Prompt:\n{}", modifiedPrompt);
-        LOGGER.debug("=".repeat(80));
         return modifiedPrompt;
     }
 

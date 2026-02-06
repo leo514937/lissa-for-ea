@@ -18,7 +18,6 @@ import edu.kit.kastel.sdq.lissa.ratlr.promptmetric.scorer.ScorerFactory;
 /**
  * A pointwise metric that evaluates each classification task individually with a {@link Scorer} and then aggregates the
  * scores using a {@link Reductor}.
- * It uses a caching mechanism to avoid redundant computations for the same task and prompt combination.
  */
 public class PointwiseMetric implements Metric {
 
@@ -54,8 +53,7 @@ public class PointwiseMetric implements Metric {
 
     /**
      * This method computes the metric for a single prompt against a list of classification tasks.
-     * It checks the cache for previously computed scores to avoid redundant computations.
-     * If a score is not found in the cache, it classifies the examples and computes the scores using the {@link Scorer}.
+     * It classifies the examples and computes the scores using the {@link Scorer}.
      * Finally, it aggregates the scores using the {@link Reductor} and returns the final metric value.
      */
     @Override

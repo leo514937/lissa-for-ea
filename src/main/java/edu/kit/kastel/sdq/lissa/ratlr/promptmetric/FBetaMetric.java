@@ -62,11 +62,19 @@ public class FBetaMetric extends GlobalMetric {
     }
 
     private static double recall(int truePositive, int falseNegative) {
-        return (double) truePositive / (truePositive + falseNegative);
+        int denominator = truePositive + falseNegative;
+        if (denominator == 0) {
+            return 0.0;
+        }
+        return (double) truePositive / denominator;
     }
 
     private static double precision(int truePositive, int falsePositive) {
-        return (double) truePositive / (truePositive + falsePositive);
+        int denominator = truePositive + falsePositive;
+        if (denominator == 0) {
+            return 0.0;
+        }
+        return (double) truePositive / denominator;
     }
 
     private static double fBeta(double precision, double recall, int beta) {

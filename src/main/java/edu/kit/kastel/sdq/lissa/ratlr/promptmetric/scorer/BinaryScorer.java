@@ -7,6 +7,8 @@ import static edu.kit.kastel.sdq.lissa.ratlr.promptmetric.Metric.MINIMUM_SCORE;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationResult;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationTask;
 
@@ -16,17 +18,6 @@ import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationTask;
  * If no result is provided, the classification is considered incorrect.
  */
 public class BinaryScorer implements Scorer {
-
-    private final double correctClassificationScore;
-    private final double incorrectClassificationScore;
-
-    /**
-     * Constructs a BinaryScorer with default scores
-     */
-    public BinaryScorer() {
-        this.correctClassificationScore = MAXIMUM_SCORE;
-        this.incorrectClassificationScore = MINIMUM_SCORE;
-    }
 
     /**
      * Scores a list of classification tasks against their corresponding classification results.
@@ -59,11 +50,11 @@ public class BinaryScorer implements Scorer {
      * @return       The score for the classification task
      */
     @Override
-    public double score(ClassificationTask task, ClassificationResult result) {
+    public double score(ClassificationTask task, @Nullable ClassificationResult result) {
         if (result == null) {
             return score(task);
         }
-        return task.label() ? correctClassificationScore : incorrectClassificationScore;
+        return task.label() == result.confidence() > MINIMUM_SCORE ? MAXIMUM_SCORE : MINIMUM_SCORE;
     }
 
     /**
@@ -75,7 +66,7 @@ public class BinaryScorer implements Scorer {
      */
     @Override
     public double score(ClassificationTask task) {
-        return task.label() ? incorrectClassificationScore : correctClassificationScore;
+        return task.label() ? MINIMUM_SCORE : MAXIMUM_SCORE;
     }
 
     @Override

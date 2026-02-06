@@ -3,6 +3,8 @@ package edu.kit.kastel.sdq.lissa.ratlr.promptmetric.scorer;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationResult;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationTask;
 
@@ -31,7 +33,7 @@ public interface Scorer {
      * @param result The classification result to be scored
      * @return A double score representing the quality of the classification result
      */
-    double score(ClassificationTask task, ClassificationResult result);
+    double score(ClassificationTask task, @Nullable ClassificationResult result);
 
     /**
      * Scores a classification task when no classification result was produced.

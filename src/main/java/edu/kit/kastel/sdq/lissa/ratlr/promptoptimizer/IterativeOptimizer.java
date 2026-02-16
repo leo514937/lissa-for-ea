@@ -116,7 +116,7 @@ public class IterativeOptimizer implements PromptOptimizer {
     /**
      * Logger for the prompt optimizer.
      */
-    private static final Logger LOGGER = LoggerFactory.getLogger(IterativeOptimizer.class);
+    private static final Logger logger = LoggerFactory.getLogger(IterativeOptimizer.class);
     /**
      * The cache used to store and retrieve prompt optimization LLM requests.
      */
@@ -228,14 +228,14 @@ public class IterativeOptimizer implements PromptOptimizer {
         double promptScore;
         String modifiedPrompt = optimizationPrompt;
         do {
-            LOGGER.debug("Iteration {}: RequestPrompt = {}", i, modifiedPrompt);
+            logger.debug("Iteration {}: RequestPrompt = {}", i, modifiedPrompt);
             promptScore = this.metric.getMetric(modifiedPrompt, examples);
-            LOGGER.debug("Iteration {}: {} = {}", i, metric.getName(), promptScore);
+            logger.debug("Iteration {}: {} = {}", i, metric.getName(), promptScore);
             promptScores[i] = promptScore;
             modifiedPrompt = cachedSanitizedRequest(generateOptimizationPrompt(modifiedPrompt));
             i++;
         } while (i < maximumIterations && promptScore < thresholdScore);
-        LOGGER.info("Iterations {}: {} = {}", i, metric.getName(), promptScores);
+        logger.info("Iterations {}: {} = {}", i, metric.getName(), promptScores);
         return modifiedPrompt;
     }
 
@@ -248,17 +248,17 @@ public class IterativeOptimizer implements PromptOptimizer {
      * @return The optimized prompt extracted from the response
      */
     protected String cachedSanitizedRequest(String request, int iteration) {
-        LOGGER.debug("Sending request to LLM (iteration {})...", iteration);
-        LOGGER.trace("Full LLM Request:\n{}", request);
+        logger.debug("Sending request to LLM (iteration {})...", iteration);
+        logger.trace("Full LLM Request:\n{}", request);
 
         String response = ChatLanguageModelUtils.cachedRequest(request, llm, cache);
 
-        LOGGER.debug("Received response from LLM (iteration {})", iteration);
-        LOGGER.trace("Full LLM Response:\n{}", response);
+        logger.debug("Received response from LLM (iteration {})", iteration);
+        logger.trace("Full LLM Response:\n{}", response);
 
         String sanitized = sanitizePrompt(parseTaggedTextFirst(response, PROMPT_START, PROMPT_END));
-        LOGGER.debug("Extracted and sanitized prompt (iteration {})", iteration);
-        LOGGER.trace("Extracted Prompt:\n{}", sanitized);
+        logger.debug("Extracted and sanitized prompt (iteration {})", iteration);
+        logger.trace("Extracted Prompt:\n{}", sanitized);
 
         return sanitized;
     }

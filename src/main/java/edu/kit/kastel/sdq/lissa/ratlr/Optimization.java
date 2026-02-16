@@ -31,7 +31,7 @@ import edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.PromptOptimizer;
  */
 public class Optimization {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Optimization.class);
+    private static final Logger logger = LoggerFactory.getLogger(Optimization.class);
     private final Path configFile;
 
     private OptimizerConfiguration configuration;
@@ -106,10 +106,10 @@ public class Optimization {
     public String run() {
         evaluationPipeline.initializeSourceAndTargetStores();
 
-        LOGGER.info("Optimizing Prompt");
+        logger.info("Optimizing Prompt");
         String result =
                 promptOptimizer.optimize(evaluationPipeline.getSourceStore(), evaluationPipeline.getTargetStore());
-        LOGGER.info("Optimized Prompt: {}", result);
+        logger.info("Optimized Prompt: {}", result);
 
         Statistics.generateOptimizationStatistics(configFile.toFile(), configuration, result);
 

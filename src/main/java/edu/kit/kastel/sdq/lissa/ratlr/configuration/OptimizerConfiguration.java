@@ -30,7 +30,7 @@ public record OptimizerConfiguration(
         @JsonProperty("prompt_optimizer") ModuleConfiguration promptOptimizer,
         @JsonProperty("metric") ModuleConfiguration metric,
         @JsonProperty("evaluator") ModuleConfiguration evaluator)
-        implements OptimizerConfigurationBuilder.With, Configuration {
+        implements OptimizerConfigurationBuilder.With, SerializableConfiguration {
 
     @Override
     public String serializeAndDestroyConfiguration() {

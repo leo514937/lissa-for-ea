@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * access to configuration values and ensuring all arguments are properly retrieved
  * before serialization.
  */
-public final class ModuleConfiguration {
+public final class ModuleConfiguration implements Configuration {
     /**
      * Error message thrown when attempting to access arguments after finalization.
      */

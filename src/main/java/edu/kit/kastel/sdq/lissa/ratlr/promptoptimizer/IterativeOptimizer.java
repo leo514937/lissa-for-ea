@@ -226,16 +226,16 @@ public class IterativeOptimizer implements PromptOptimizer {
     protected String optimizeIntern(List<ClassificationTask> examples) {
         double[] promptScores = new double[maximumIterations];
         int i = 0;
-        double promptScore;
+        double promptScore = 0;
         String modifiedPrompt = optimizationPrompt;
-        do {
+        while (i < maximumIterations && promptScore < thresholdScore) {
             logger.debug("Iteration {}: RequestPrompt = {}", i, modifiedPrompt);
             promptScore = this.metric.getMetric(modifiedPrompt, examples);
             logger.debug("Iteration {}: {} = {}", i, metric.getName(), promptScore);
             promptScores[i] = promptScore;
             modifiedPrompt = cachedSanitizedRequest(generateOptimizationPrompt(modifiedPrompt));
             i++;
-        } while (i < maximumIterations && promptScore < thresholdScore);
+        }
         logger.info("Iterations {}: {} = {}", i, metric.getName(), promptScores);
         return modifiedPrompt;
     }

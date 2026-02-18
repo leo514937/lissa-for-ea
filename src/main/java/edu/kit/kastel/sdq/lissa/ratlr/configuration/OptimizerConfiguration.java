@@ -39,7 +39,7 @@ public record OptimizerConfiguration(
         try {
             return new ObjectMapper()
                     .enable(SerializationFeature.INDENT_OUTPUT)
-                    .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                    .setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL)
                     .writeValueAsString(this);
         } catch (JsonProcessingException e) {
             throw new UncheckedIOException(e);

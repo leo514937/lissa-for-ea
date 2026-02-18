@@ -92,7 +92,7 @@ public class IterativeFeedbackOptimizer extends IterativeOptimizer {
     protected String optimizeIntern(List<ClassificationTask> examples) {
         double[] promptScores = new double[maximumIterations];
         int i = 0;
-        double promptScore;
+        double promptScore = 0;
         String modifiedPrompt = optimizationPrompt;
 
         logger.debug(LOGGER_SEPARATOR_LINE);
@@ -100,7 +100,7 @@ public class IterativeFeedbackOptimizer extends IterativeOptimizer {
         logger.debug("Feedback size: {}", feedbackSize);
         logger.debug(LOGGER_SEPARATOR_LINE);
 
-        do {
+        while (i < maximumIterations && promptScore < thresholdScore) {
             // Evaluate prompt and log individual classifications
             logger.debug("Evaluating prompt on {} classification tasks...", examples.size());
             promptScore = this.metric.getMetric(modifiedPrompt, examples);
@@ -128,7 +128,7 @@ public class IterativeFeedbackOptimizer extends IterativeOptimizer {
             logger.debug("Received and extracted new prompt:\n{}", modifiedPrompt);
             logger.debug(LOGGER_SEPARATOR_LINE);
             i++;
-        } while (i < maximumIterations && promptScore < thresholdScore);
+        }
 
         logger.info("Iterations {}: {}s = {}", i, this.metric.getName(), promptScores);
         return modifiedPrompt;
@@ -177,7 +177,6 @@ public class IterativeFeedbackOptimizer extends IterativeOptimizer {
         for (ClassificationTask task : tasks) {
             taskNumber++;
             boolean isCorrect = isClassifiedCorrectly(prompt, task);
-            double taskScore = metric.getMetric(prompt, List.of(task));
 
             logger.debug(
                     "  Task {}/{}: {} -> {} | Expected: {} | Score: {} | Correct: {}",
@@ -186,7 +185,7 @@ public class IterativeFeedbackOptimizer extends IterativeOptimizer {
                     task.source().getIdentifier(),
                     task.target().getIdentifier(),
                     task.label() ? "Yes" : "No",
-                    taskScore,
+                    metric.getMetric(prompt, List.of(task)),
                     isCorrect ? "YES" : "NO");
 
             if (!isCorrect) {

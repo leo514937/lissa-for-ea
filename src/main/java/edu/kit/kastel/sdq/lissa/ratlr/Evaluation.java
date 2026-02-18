@@ -97,6 +97,9 @@ public class Evaluation {
      */
     private List<Element> targetElements = new ArrayList<>();
 
+    /** The configuration used for this evaluation, potentially modified with an overwritten prompt. */
+    private EvaluationConfiguration configToUse;
+
     /**
      * Creates a new evaluation instance with the specified configuration file.
      * This constructor:
@@ -188,7 +191,7 @@ public class Evaluation {
         sourceStore = new SourceElementStore(configuration.sourceStore());
         targetStore = new TargetElementStore(configuration.targetStore());
 
-        EvaluationConfiguration configToUse = configuration;
+        configToUse = configuration;
         if (!prompt.isEmpty()) {
             assert configuration.classifier() != null;
             ModuleConfiguration modifiedClassifier = configuration
@@ -241,8 +244,8 @@ public class Evaluation {
             configFileName = "in_memory_configuration.json";
         }
         Statistics.generateStatistics(
-                traceLinks, configFileName, configuration, getSourceArtifactCount(), getTargetArtifactCount());
-        Statistics.saveTraceLinks(traceLinks, configFileName, configuration);
+                traceLinks, configFileName, configToUse, getSourceArtifactCount(), getTargetArtifactCount());
+        Statistics.saveTraceLinks(traceLinks, configFileName, configToUse);
         CacheManager.getDefaultInstance().flush();
 
         return traceLinks;

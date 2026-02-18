@@ -63,21 +63,6 @@ public final class ModuleConfiguration implements Configuration {
     }
 
     /**
-     * Private constructor for creating a copy of a configuration with modified arguments.
-     * This constructor copies both the arguments and retrievedArguments maps to maintain
-     * consistency when creating modified configurations.
-     *
-     * @param name The name of the module
-     * @param arguments The arguments for the module
-     * @param retrievedArguments The retrieved arguments to copy
-     */
-    private ModuleConfiguration(String name, Map<String, String> arguments, Map<String, String> retrievedArguments) {
-        this.name = name;
-        this.arguments = arguments;
-        this.retrievedArguments.putAll(retrievedArguments);
-    }
-
-    /**
      * Returns the name of the module.
      *
      * @return The module name
@@ -256,6 +241,8 @@ public final class ModuleConfiguration implements Configuration {
      * Creates a new ModuleConfiguration with the specified argument modified.
      * This method creates a copy of the current configuration with one argument changed,
      * without mutating the original configuration.
+     * Retrieved arguments are not modified by this method, as it is intended for creating new configurations without
+     * any assumptions about which arguments have been retrieved in the original configuration.
      *
      * @param key The key of the argument to modify
      * @param value The new value for the argument
@@ -264,7 +251,7 @@ public final class ModuleConfiguration implements Configuration {
     public ModuleConfiguration with(String key, String value) {
         Map<String, String> newArguments = new LinkedHashMap<>(this.arguments);
         newArguments.put(key, value);
-        return new ModuleConfiguration(this.name, newArguments, this.retrievedArguments);
+        return new ModuleConfiguration(this.name, newArguments);
     }
 
     /**

@@ -54,7 +54,7 @@ public class BinaryScorer implements Scorer {
         if (result == null) {
             return score(task);
         }
-        return task.label() == result.confidence() > MINIMUM_SCORE ? MAXIMUM_SCORE : MINIMUM_SCORE;
+        return task.label() == (result.confidence() > MINIMUM_SCORE) ? MAXIMUM_SCORE : MINIMUM_SCORE;
     }
 
     /**

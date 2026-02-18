@@ -5,7 +5,7 @@ import edu.kit.kastel.sdq.lissa.ratlr.elementstore.SourceElementStore;
 import edu.kit.kastel.sdq.lissa.ratlr.elementstore.TargetElementStore;
 
 /**
- * Abstract base class for prompt optimizers in the LiSSA framework.
+ * Interface for prompt optimizers in the LiSSA framework.
  * This class provides the foundation for implementing different prompt optimization strategies
  * for trace link analysis.
  */

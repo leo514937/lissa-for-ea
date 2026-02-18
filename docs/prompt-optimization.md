@@ -30,7 +30,7 @@ Custom metrics can be added either through implementation of the [`Global Metric
     - Mean
 - **[`Mock Metric`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/promptoptimizer/promptmetric/MockMetric.java)** (`mock`): Returns dummy values for testing purposes
 
-### Optimizers (`optimizer` package)
+### Optimizers (`promptoptimizer` package)
 
 The [`Optimizer`](../src/main/java/edu/kit/kastel/sdq/lissa/ratlr/promptoptimizer/PromptOptimizer.java) module handles prompt optimization requests.
 Different optimization strategies are implemented to improve prompts using various means.
@@ -103,5 +103,5 @@ The optimization process generally follows these steps:
 
 ### Result Files
 
-The prompt optimization results will be stored as `results-prompt-optimization-<config_filename>_iter<i>.md` just as regular evaluation results.
+The prompt optimization results will be stored as `results-prompt-optimization-<config_filename>.md` just as regular evaluation results.
 They include the full configuration used for optimization as well as the optimized prompt.

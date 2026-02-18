@@ -81,7 +81,7 @@ public class Optimization {
         Set<TraceLink> goldStandard = getTraceLinksFromGoldStandard(
                 configuration.evaluationConfiguration().goldStandardConfiguration());
 
-        Metric metric = MetricFactory.createScorer(
+        Metric metric = MetricFactory.createMetric(
                 configuration.metric(),
                 evaluationPipeline.getClassifier(),
                 evaluationPipeline.getAggregator(),

@@ -23,7 +23,7 @@ import edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.samplestrategy.SamplerFact
  */
 public class IterativeFeedbackOptimizer extends IterativeOptimizer {
 
-    private static final String LOGGER_SEPATOR_LINE = "=".repeat(80);
+    private static final String LOGGER_SEPARATOR_LINE = "=".repeat(80);
 
     /**
      * The default template for the feedback prompt.
@@ -95,10 +95,10 @@ public class IterativeFeedbackOptimizer extends IterativeOptimizer {
         double promptScore;
         String modifiedPrompt = optimizationPrompt;
 
-        logger.debug(LOGGER_SEPATOR_LINE);
+        logger.debug(LOGGER_SEPARATOR_LINE);
         logger.debug("Maximum iterations: {}, Threshold score: {}", maximumIterations, thresholdScore);
         logger.debug("Feedback size: {}", feedbackSize);
-        logger.debug(LOGGER_SEPATOR_LINE);
+        logger.debug(LOGGER_SEPARATOR_LINE);
 
         do {
             // Evaluate prompt and log individual classifications
@@ -126,7 +126,7 @@ public class IterativeFeedbackOptimizer extends IterativeOptimizer {
             modifiedPrompt = cachedSanitizedRequest(request, i);
 
             logger.debug("Received and extracted new prompt:\n{}", modifiedPrompt);
-            logger.debug(LOGGER_SEPATOR_LINE);
+            logger.debug(LOGGER_SEPARATOR_LINE);
             i++;
         } while (i < maximumIterations && promptScore < thresholdScore);
 

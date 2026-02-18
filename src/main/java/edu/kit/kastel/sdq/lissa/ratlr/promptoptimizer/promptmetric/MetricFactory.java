@@ -25,7 +25,7 @@ public final class MetricFactory {
      * @return An instance of a concrete metric implementation.
      * @throws IllegalStateException If the configuration name does not match any known metric types.
      */
-    public static Metric createScorer(
+    public static Metric createMetric(
             ModuleConfiguration configuration,
             Classifier classifier,
             ResultAggregator aggregator,

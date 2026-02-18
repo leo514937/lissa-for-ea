@@ -186,6 +186,7 @@ public class IterativeOptimizer implements PromptOptimizer {
         this.metric = metric;
         this.trainingDataSize =
                 configuration.argumentAsInt(TRAINING_DATA_SIZE_CONFIGURATION_KEY, DEFAULT_TRAINING_DATA_SIZE);
+        this.formattedTemplate = "";
     }
 
     @Override

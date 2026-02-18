@@ -44,7 +44,7 @@ public final class PromptOptimizationUtils {
         if (taggedTexts.isEmpty()) {
             logger.warn("No tagged text found, returning the original text.");
         }
-        return parseTaggedText(text, startTag, endTag).stream().findFirst().orElse(text);
+        return taggedTexts.stream().findFirst().orElse(text);
     }
 
     /**

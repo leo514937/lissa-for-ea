@@ -3,10 +3,10 @@ package edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer;
 
 import static edu.kit.kastel.sdq.lissa.ratlr.elementstore.ElementStoreOperations.reduceSourceElementStore;
 import static edu.kit.kastel.sdq.lissa.ratlr.elementstore.ElementStoreOperations.reduceTargetElementStore;
-import static edu.kit.kastel.sdq.lissa.ratlr.promptmetric.Metric.MAXIMUM_SCORE;
 import static edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.PromptOptimizationUtils.getClassificationTasks;
 import static edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.PromptOptimizationUtils.parseTaggedTextFirst;
 import static edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.PromptOptimizationUtils.sanitizePrompt;
+import static edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.promptmetric.Metric.MAXIMUM_SCORE;
 
 import java.util.List;
 import java.util.Set;
@@ -24,7 +24,7 @@ import edu.kit.kastel.sdq.lissa.ratlr.elementstore.SourceElementStore;
 import edu.kit.kastel.sdq.lissa.ratlr.elementstore.TargetElementStore;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.Element;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
-import edu.kit.kastel.sdq.lissa.ratlr.promptmetric.Metric;
+import edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.promptmetric.Metric;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.ChatLanguageModelUtils;
 
 import dev.langchain4j.model.chat.ChatModel;

@@ -1,8 +1,8 @@
 /* Licensed under MIT 2025-2026. */
-package edu.kit.kastel.sdq.lissa.ratlr.promptmetric.scorer;
+package edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.promptmetric.scorer;
 
-import static edu.kit.kastel.sdq.lissa.ratlr.promptmetric.Metric.MAXIMUM_SCORE;
-import static edu.kit.kastel.sdq.lissa.ratlr.promptmetric.Metric.MINIMUM_SCORE;
+import static edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.promptmetric.Metric.MAXIMUM_SCORE;
+import static edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.promptmetric.Metric.MINIMUM_SCORE;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,5 +1,5 @@
 /* Licensed under MIT 2025-2026. */
-package edu.kit.kastel.sdq.lissa.ratlr.promptmetric.scorer;
+package edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.promptmetric.scorer;
 
 /**
  * Factory class for creating Scorer instances based on provided configurations.

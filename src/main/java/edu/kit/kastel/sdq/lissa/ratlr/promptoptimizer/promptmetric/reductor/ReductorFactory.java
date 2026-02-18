@@ -1,5 +1,5 @@
 /* Licensed under MIT 2025-2026. */
-package edu.kit.kastel.sdq.lissa.ratlr.promptmetric.reductor;
+package edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.promptmetric.reductor;
 
 /**
  * Factory class for creating Reductor instances based on the provided name.

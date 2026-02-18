@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,14 +33,14 @@ public abstract class GlobalMetric implements Metric {
     private static final Logger logger = LoggerFactory.getLogger(GlobalMetric.class);
 
     private final Classifier classifier;
+    @Nullable
     private final ResultAggregator aggregator;
-    private final boolean usesCustomAggregator;
     private final TraceLinkIdPostprocessor postprocessor;
 
-    protected GlobalMetric(Classifier classifier, ResultAggregator aggregator, TraceLinkIdPostprocessor postprocessor) {
+    protected GlobalMetric(Classifier classifier, @Nullable ResultAggregator aggregator,
+                           TraceLinkIdPostprocessor postprocessor) {
         this.classifier = classifier;
         this.aggregator = aggregator;
-        this.usesCustomAggregator = aggregator != null;
         this.postprocessor = postprocessor;
     }
 
@@ -150,7 +151,7 @@ public abstract class GlobalMetric implements Metric {
      * @return A set of trace links derived from the classification results.
      */
     private Set<TraceLink> aggregate(List<ClassificationResult> classificationResults) {
-        if (!usesCustomAggregator) {
+        if (aggregator == null) {
             return defaultAggregator(classificationResults);
         }
         List<Element> sourceElements = new ArrayList<>();

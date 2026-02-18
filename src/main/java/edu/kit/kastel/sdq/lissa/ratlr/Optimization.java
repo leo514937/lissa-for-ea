@@ -16,10 +16,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.OptimizerConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
-import edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.OptimizerFactory;
 import edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.PromptOptimizer;
 import edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.promptmetric.Metric;
-import edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.promptmetric.MetricFactory;
 
 /**
  * Represents a single prompt optimization run of the LiSSA framework.
@@ -81,13 +79,13 @@ public class Optimization {
         Set<TraceLink> goldStandard = getTraceLinksFromGoldStandard(
                 configuration.evaluationConfiguration().goldStandardConfiguration());
 
-        Metric metric = MetricFactory.createMetric(
+        Metric metric = Metric.createMetric(
                 configuration.metric(),
                 evaluationPipeline.getClassifier(),
                 evaluationPipeline.getAggregator(),
                 evaluationPipeline.getTraceLinkIdPostProcessor());
 
-        promptOptimizer = OptimizerFactory.createOptimizer(configuration.promptOptimizer(), goldStandard, metric);
+        promptOptimizer = PromptOptimizer.createOptimizer(configuration.promptOptimizer(), goldStandard, metric);
         configuration.serializeAndDestroyConfiguration();
     }
 

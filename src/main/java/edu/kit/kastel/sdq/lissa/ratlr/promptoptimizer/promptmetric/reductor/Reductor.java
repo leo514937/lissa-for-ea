@@ -22,4 +22,19 @@ public interface Reductor {
      * @return The name of the Reductor.
      */
     String getName();
+
+    /**
+     * Factory method to create a Reductor based on the provided configuration.
+     * The name field indicates the type of Reductor to create.
+     *
+     * @param name The name of the Reductor type to create.
+     * @return An instance of a concrete Reductor implementation.
+     * @throws IllegalStateException If the configuration name does not match any known Reductor types.
+     */
+    static Reductor createReductor(String name) {
+        return switch (name) {
+            case "mean" -> new MeanReductor();
+            default -> throw new IllegalStateException("Unexpected value: " + name);
+        };
+    }
 }

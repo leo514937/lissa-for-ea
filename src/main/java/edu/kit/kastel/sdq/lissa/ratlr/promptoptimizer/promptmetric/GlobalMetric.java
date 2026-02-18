@@ -65,29 +65,18 @@ public abstract class GlobalMetric implements Metric {
      */
     @Override
     public Double getMetric(String prompt, List<ClassificationTask> examples) {
-        if (examples.size() > 1) {
-            logger.debug("Computing metric for tasks: {}", examples);
+        if (examples.isEmpty()) {
+            return MINIMUM_SCORE;
         }
 
         Set<TraceLink> classifiedLinks = classify(prompt, examples);
-
-        if (examples.size() > 1) {
-            logger.debug("Results: {} accepted", classifiedLinks.size());
-        }
-
         Set<TraceLink> groundTruth = examples.stream()
                 .filter(ClassificationTask::label)
                 .map(task -> TraceLink.of(
                         task.source().getIdentifier(), task.target().getIdentifier()))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
-        Double score = reduce(classifiedLinks, groundTruth);
-
-        if (examples.size() > 1) {
-            logger.debug("Score: {}", score);
-        }
-
-        return score;
+        return reduce(classifiedLinks, groundTruth);
     }
 
     /**

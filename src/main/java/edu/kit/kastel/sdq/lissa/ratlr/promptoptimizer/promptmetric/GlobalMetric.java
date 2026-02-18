@@ -33,12 +33,14 @@ public abstract class GlobalMetric implements Metric {
     private static final Logger logger = LoggerFactory.getLogger(GlobalMetric.class);
 
     private final Classifier classifier;
+
     @Nullable
     private final ResultAggregator aggregator;
+
     private final TraceLinkIdPostprocessor postprocessor;
 
-    protected GlobalMetric(Classifier classifier, @Nullable ResultAggregator aggregator,
-                           TraceLinkIdPostprocessor postprocessor) {
+    protected GlobalMetric(
+            Classifier classifier, @Nullable ResultAggregator aggregator, TraceLinkIdPostprocessor postprocessor) {
         this.classifier = classifier;
         this.aggregator = aggregator;
         this.postprocessor = postprocessor;

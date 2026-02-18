@@ -97,9 +97,6 @@ public class Evaluation {
      */
     private List<Element> targetElements = new ArrayList<>();
 
-    /** The configuration used for this evaluation, potentially modified with an overwritten prompt. */
-    private EvaluationConfiguration configToUse;
-
     /**
      * Creates a new evaluation instance with the specified configuration file.
      * This constructor:
@@ -116,7 +113,7 @@ public class Evaluation {
     public Evaluation(Path configFile) throws IOException {
         this.configFile = Objects.requireNonNull(configFile);
         configuration = new ObjectMapper().readValue(configFile.toFile(), EvaluationConfiguration.class);
-        setup("");
+        setup();
     }
 
     /**
@@ -137,8 +134,29 @@ public class Evaluation {
      */
     public Evaluation(Path configFile, String prompt) throws IOException {
         this.configFile = Objects.requireNonNull(configFile);
-        configuration = new ObjectMapper().readValue(configFile.toFile(), EvaluationConfiguration.class);
-        setup(prompt);
+        EvaluationConfiguration loadedConfiguration =
+                new ObjectMapper().readValue(configFile.toFile(), EvaluationConfiguration.class);
+        configuration = modifyConfigurationWithPrompt(prompt, loadedConfiguration);
+
+        setup();
+    }
+
+    private static EvaluationConfiguration modifyConfigurationWithPrompt(
+            String prompt, EvaluationConfiguration loadedConfiguration) {
+        if (prompt.isEmpty()) {
+            return loadedConfiguration;
+        }
+
+        logger.info("Modifying configuration with new prompt for optimization: {}", prompt);
+
+        ModuleConfiguration classifierConfig = loadedConfiguration.classifier();
+        assert classifierConfig != null;
+        ModuleConfiguration modifiedClassifier = loadedConfiguration
+                .classifier()
+                .with(Classifier.getClassificationPromptConfigurationKey(classifierConfig), prompt);
+        return EvaluationConfigurationBuilder.builder(loadedConfiguration)
+                .classifier(modifiedClassifier)
+                .build();
     }
 
     /**
@@ -154,7 +172,7 @@ public class Evaluation {
     public Evaluation(EvaluationConfiguration config) throws IOException {
         this.configuration = config;
         this.configFile = null;
-        setup("");
+        setup();
     }
 
     /**
@@ -174,7 +192,7 @@ public class Evaluation {
      *
      * @throws IOException If there are issues reading the configuration
      */
-    private void setup(String prompt) throws IOException {
+    private void setup() throws IOException {
         CacheManager.setCacheDir(configuration.cacheDir());
 
         ContextStore contextStore = new ContextStore();
@@ -190,24 +208,13 @@ public class Evaluation {
         embeddingCreator = EmbeddingCreator.createEmbeddingCreator(configuration.embeddingCreator(), contextStore);
         sourceStore = new SourceElementStore(configuration.sourceStore());
         targetStore = new TargetElementStore(configuration.targetStore());
-
-        configToUse = configuration;
-        if (!prompt.isEmpty()) {
-            assert configuration.classifier() != null;
-            ModuleConfiguration modifiedClassifier = configuration
-                    .classifier()
-                    .with(Classifier.getClassificationPromptConfigurationKey(configuration.classifier()), prompt);
-            configToUse = EvaluationConfigurationBuilder.builder(configuration)
-                    .classifier(modifiedClassifier)
-                    .build();
-        }
-        classifier = configToUse.createClassifier(contextStore);
-        aggregator = ResultAggregator.createResultAggregator(configToUse.resultAggregator(), contextStore);
+        classifier = configuration.createClassifier(contextStore);
+        aggregator = ResultAggregator.createResultAggregator(configuration.resultAggregator(), contextStore);
 
         traceLinkIdPostProcessor = TraceLinkIdPostprocessor.createTraceLinkIdPostprocessor(
-                configToUse.traceLinkIdPostprocessor(), contextStore);
+                configuration.traceLinkIdPostprocessor(), contextStore);
 
-        configToUse.serializeAndDestroyConfiguration();
+        configuration.serializeAndDestroyConfiguration();
     }
 
     /**
@@ -244,8 +251,8 @@ public class Evaluation {
             configFileName = "in_memory_configuration.json";
         }
         Statistics.generateStatistics(
-                traceLinks, configFileName, configToUse, getSourceArtifactCount(), getTargetArtifactCount());
-        Statistics.saveTraceLinks(traceLinks, configFileName, configToUse);
+                traceLinks, configFileName, configuration, getSourceArtifactCount(), getTargetArtifactCount());
+        Statistics.saveTraceLinks(traceLinks, configFileName, configuration);
         CacheManager.getDefaultInstance().flush();
 
         return traceLinks;

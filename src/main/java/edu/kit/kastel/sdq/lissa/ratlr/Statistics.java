@@ -1,4 +1,4 @@
-/* Licensed under MIT 2025. */
+/* Licensed under MIT 2025-2026. */
 package edu.kit.kastel.sdq.lissa.ratlr;
 
 import java.io.File;
@@ -15,8 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.kit.kastel.mcse.ardoco.metrics.ClassificationMetricsCalculator;
-import edu.kit.kastel.sdq.lissa.ratlr.configuration.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.EvaluationConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.GoldStandardConfiguration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.OptimizerConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
 
 /**
@@ -55,21 +56,21 @@ public final class Statistics {
      * </ol>
      *
      * @param traceLinks Set of identified trace links
-     * @param configFile Configuration file used for the analysis
-     * @param configuration Configuration object used for the analysis
+     * @param configFileName  Evaluation configuration file name used for the analysis
+     * @param configuration Evaluation configuration object used for the analysis
      * @param sourceArtifacts Number of source artifacts
      * @param targetArtifacts Number of target artifacts
      * @throws UncheckedIOException If there are issues writing the statistics file
      */
     public static void generateStatistics(
             Set<TraceLink> traceLinks,
-            File configFile,
-            Configuration configuration,
+            String configFileName,
+            EvaluationConfiguration configuration,
             int sourceArtifacts,
             int targetArtifacts)
             throws UncheckedIOException {
         generateStatistics(
-                configuration.getConfigurationIdentifierForFile(configFile.getName()),
+                configuration.getConfigurationIdentifierForFile(configFileName),
                 configuration.serializeAndDestroyConfiguration(),
                 traceLinks,
                 configuration.goldStandardConfiguration(),
@@ -157,7 +158,7 @@ public final class Statistics {
      *     <li>Handles column swapping if configured</li>
      * </ol>
      *
-     * @param goldStandardConfiguration Configuration for the gold standard file
+     * @param goldStandardConfiguration EvaluationConfiguration for the gold standard file
      * @return Set of valid trace links from the gold standard
      * @throws UncheckedIOException If there are issues reading the gold standard file
      */
@@ -189,13 +190,14 @@ public final class Statistics {
      * </ol>
      *
      * @param traceLinks Set of trace links to save
-     * @param configFile Configuration file used for the analysis
-     * @param configuration Configuration object used for the analysis
+     * @param configFileName Evaluation configuration file name used for the analysis
+     * @param configuration Evaluation configuration object used for the analysis
      * @throws UncheckedIOException If there are issues writing the trace links file
      */
-    public static void saveTraceLinks(Set<TraceLink> traceLinks, File configFile, Configuration configuration)
+    public static void saveTraceLinks(
+            Set<TraceLink> traceLinks, String configFileName, EvaluationConfiguration configuration)
             throws UncheckedIOException {
-        var fileName = "traceLinks-" + configuration.getConfigurationIdentifierForFile(configFile.getName()) + ".csv";
+        var fileName = "traceLinks-" + configuration.getConfigurationIdentifierForFile(configFileName) + ".csv";
         saveTraceLinks(traceLinks, fileName);
     }
 
@@ -223,6 +225,59 @@ public final class Statistics {
                 .collect(Collectors.joining("\n"));
         try {
             Files.writeString(new File(destination).toPath(), csvResult, StandardOpenOption.CREATE);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * Generates statistics for prompt optimization.
+     *
+     * This method:
+     * <ol>
+     *     <li>Generates a detailed report with configuration and results</li>
+     *     <li>Saves the report to a markdown file</li>
+     * </ol>
+     * @param configFile EvaluationConfiguration file used for the optimization
+     * @param configuration EvaluationConfiguration object used for the optimization
+     * @param prompt Optimized prompt generated during the optimization
+     * @throws UncheckedIOException If there are issues writing the statistics file
+     */
+    public static void generateOptimizationStatistics(
+            File configFile, OptimizerConfiguration configuration, String prompt) throws UncheckedIOException {
+        generateOptimizationStatistics(
+                configuration.getConfigurationIdentifierForFile(configFile.getName()),
+                configuration.serializeAndDestroyConfiguration(),
+                prompt);
+    }
+
+    /**
+     * Generates statistics for prompt optimization with custom configuration identifier.
+     *
+     * This method:
+     * <ol>
+     *     <li>Generates a detailed report with configuration and results</li>
+     *     <li>Saves the report to a markdown file</li>
+     * </ol>
+     *
+     * @param configurationIdentifier Unique identifier for the configuration
+     * @param configurationSummary Summary of the configuration used
+     * @param prompt Optimized prompt used in the analysis
+     * @throws UncheckedIOException If there are issues writing the statistics file
+     */
+    public static void generateOptimizationStatistics(
+            String configurationIdentifier, String configurationSummary, String prompt) throws UncheckedIOException {
+
+        // Store information to one file (config and results)
+        var resultFile = new File("results-prompt-optimization-" + configurationIdentifier + ".md");
+        StringBuilder result = new StringBuilder();
+        result.append(configurationToString(configurationIdentifier, configurationSummary));
+        result.append("## Stats\n");
+        result.append(" * Optimized Prompt: ").append(escapeMarkdown(prompt)).append("\n");
+
+        logger.info("Storing results to {}", resultFile.getName());
+        try {
+            Files.writeString(resultFile.toPath(), result.toString(), StandardOpenOption.CREATE);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

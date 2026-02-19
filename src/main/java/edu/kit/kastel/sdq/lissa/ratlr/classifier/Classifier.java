@@ -1,9 +1,10 @@
-/* Licensed under MIT 2025. */
+/* Licensed under MIT 2025-2026. */
 package edu.kit.kastel.sdq.lissa.ratlr.classifier;
 
 import static edu.kit.kastel.sdq.lissa.ratlr.classifier.MockClassifier.MOCK_CLASSIFIER_NAME;
 import static edu.kit.kastel.sdq.lissa.ratlr.classifier.ReasoningClassifier.REASONING_CLASSIFIER_NAME;
 import static edu.kit.kastel.sdq.lissa.ratlr.classifier.SimpleClassifier.SIMPLE_CLASSIFIER_NAME;
+import static edu.kit.kastel.sdq.lissa.ratlr.configuration.Configuration.CONFIG_NAME_SEPARATOR;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,11 +36,12 @@ import edu.kit.kastel.sdq.lissa.ratlr.utils.Pair;
  */
 public abstract class Classifier {
     /**
-     * Separator used in configuration names.
+     * Logger instance for logging classifier activities.
      */
-    public static final String CONFIG_NAME_SEPARATOR = "_";
-
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    /**
+     * The number of threads to use for parallel processing.
+     */
     protected final int threads;
     /**
      * The shared context store for pipeline components.
@@ -113,7 +115,7 @@ public abstract class Classifier {
             });
         }
 
-        logger.info("Waiting for classification to finish. Tasks in queue: {}", taskQueue.size());
+        logger.debug("Waiting for classification to finish. Tasks in queue: {}", taskQueue.size());
 
         for (Thread worker : workers) {
             try {
@@ -125,7 +127,7 @@ public abstract class Classifier {
         }
 
         List<ClassificationResult> resultList = new ArrayList<>(results);
-        logger.info("Finished parallel classification with {} results.", resultList.size());
+        logger.debug("Finished parallel classification with {} results.", resultList.size());
         return resultList;
     }
 
@@ -203,13 +205,6 @@ public abstract class Classifier {
     public abstract void setClassificationPrompt(String prompt);
 
     /**
-     * Gets the key used to set the classification prompt in configurations.
-     *
-     * @return The classification prompt key
-     */
-    public abstract String getClassificationPromptKey();
-
-    /**
      * Creates a list of classification tasks from source and target element stores.
      * Each task represents a pair of elements to be classified.
      *
@@ -253,6 +248,25 @@ public abstract class Classifier {
             case MOCK_CLASSIFIER_NAME -> new MockClassifier(contextStore);
             case SIMPLE_CLASSIFIER_NAME -> new SimpleClassifier(configuration, contextStore);
             case REASONING_CLASSIFIER_NAME -> new ReasoningClassifier(configuration, contextStore);
+            default -> throw new IllegalStateException("Unexpected value: " + configuration.name());
+        };
+    }
+
+    /**
+     * Creates the classification prompt key based on the provided configuration.
+     * The type of classifier is determined by the first part of the configuration name.
+     *
+     * @param configuration The module configuration for the classifier
+     * @return The classification prompt key
+     * @throws IllegalStateException If the configuration name is not recognized
+     */
+    public static String getClassificationPromptConfigurationKey(ModuleConfiguration configuration) {
+        return switch (configuration.name().split(CONFIG_NAME_SEPARATOR)[0]) {
+            case MOCK_CLASSIFIER_NAME ->
+                throw new UnsupportedOperationException(
+                        "MockClassifier does not support retrieving a single classification prompt key.");
+            case SIMPLE_CLASSIFIER_NAME -> SimpleClassifier.getClassificationPromptKey();
+            case REASONING_CLASSIFIER_NAME -> ReasoningClassifier.getClassificationPromptKey();
             default -> throw new IllegalStateException("Unexpected value: " + configuration.name());
         };
     }

@@ -122,10 +122,10 @@ public class ReasoningClassifier extends Classifier {
         this.prompt = prompt;
     }
 
-    @Override
-    public String getClassificationPromptKey() {
+    public static String getClassificationPromptKey() {
         return CLASSIFICATION_PROMPT_KEY;
     }
+
     /**
      * Classifies a pair of elements by using the language model to reason about their relationship.
      * The classification result is cached to avoid redundant LLM calls.

@@ -1,4 +1,4 @@
-/* Licensed under MIT 2025. */
+/* Licensed under MIT 2025-2026. */
 package edu.kit.kastel.sdq.lissa.ratlr.configuration;
 
 import java.util.Arrays;
@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * access to configuration values and ensuring all arguments are properly retrieved
  * before serialization.
  */
-public final class ModuleConfiguration {
+public final class ModuleConfiguration implements Configuration {
     /**
      * Error message thrown when attempting to access arguments after finalization.
      */
@@ -235,6 +235,23 @@ public final class ModuleConfiguration {
                     + retrievedArgument + " and cannot be changed to " + value);
         }
         return value;
+    }
+
+    /**
+     * Creates a new ModuleConfiguration with the specified argument modified.
+     * This method creates a copy of the current configuration with one argument changed,
+     * without mutating the original configuration.
+     * Retrieved arguments are not modified by this method, as it is intended for creating new configurations without
+     * any assumptions about which arguments have been retrieved in the original configuration.
+     *
+     * @param key The key of the argument to modify
+     * @param value The new value for the argument
+     * @return A new ModuleConfiguration with the modified argument
+     */
+    public ModuleConfiguration with(String key, String value) {
+        Map<String, String> newArguments = new LinkedHashMap<>(this.arguments);
+        newArguments.put(key, value);
+        return new ModuleConfiguration(this.name, newArguments);
     }
 
     /**

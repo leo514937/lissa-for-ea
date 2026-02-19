@@ -1,4 +1,4 @@
-/* Licensed under MIT 2025. */
+/* Licensed under MIT 2025-2026. */
 package edu.kit.kastel.sdq.lissa.ratlr.classifier;
 
 import java.util.*;
@@ -149,12 +149,6 @@ public class PipelineClassifier extends Classifier {
     public void setClassificationPrompt(String prompt) {
         throw new UnsupportedOperationException(
                 "PipelineClassifiers do not support setting a single classification prompt. Configure individual classifiers instead.");
-    }
-
-    @Override
-    public String getClassificationPromptKey() {
-        throw new UnsupportedOperationException(
-                "PipelineClassifiers do not support retrieving a single classification prompt key. Access individual classifiers instead.");
     }
 
     /**

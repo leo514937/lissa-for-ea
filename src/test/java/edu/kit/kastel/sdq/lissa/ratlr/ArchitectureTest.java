@@ -4,6 +4,7 @@ package edu.kit.kastel.sdq.lissa.ratlr;
 import static com.tngtech.archunit.lang.SimpleConditionEvent.violated;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -11,6 +12,8 @@ import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -22,10 +25,14 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 
+import edu.kit.kastel.sdq.lissa.cli.command.OptimizeCommand;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheKey;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheParameter;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.classifier.ClassifierCacheParameter;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.embedding.EmbeddingCacheParameter;
+import edu.kit.kastel.sdq.lissa.ratlr.classifier.Classifier;
+import edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.PromptOptimizer;
+import edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.promptmetric.Metric;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.Environment;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.Futures;
 import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
@@ -43,6 +50,15 @@ import edu.kit.kastel.sdq.lissa.ratlr.utils.KeyGenerator;
  */
 @AnalyzeClasses(packages = "edu.kit.kastel.sdq.lissa")
 class ArchitectureTest {
+
+    @ArchTest
+    static final ArchRule allLoggerShallBeCalledLogger = fields().that()
+            .haveRawType(Logger.class)
+            .should()
+            .haveName("logger")
+            .orShould()
+            .haveName("STATIC_LOGGER") // Exception for cases where multiple loggers are needed
+            .because("All loggers should be named 'logger' for consistency.");
 
     /**
      * Rule that enforces environment variable access restrictions.
@@ -115,6 +131,30 @@ class ArchitectureTest {
                             return javaConstructorCall.getTarget().getOwner().isAssignableTo(CacheKey.class);
                         }
                     });
+
+    /**
+     * Prompts for classifiers should only be modified by optimizers or metric scorers. Otherwise, there will be
+     * inconsistencies with the configuration file.
+     */
+    @ArchTest
+    static final ArchRule classifierPromptsShouldOnlyBeModifiedByOptimizers = noClasses()
+            .that()
+            .areNotAssignableTo(PromptOptimizer.class)
+            .and()
+            .areNotAssignableTo(Metric.class)
+            .should()
+            .callMethod(Classifier.class, "setClassificationPrompt", String.class);
+
+    /**
+     * Only the {@link OptimizeCommand} should be allowed to overwrite the prompt used for evaluation to reflect the
+     * modified prompt into the configuration.
+     */
+    @ArchTest
+    static final ArchRule onlyOptimizationCommandShouldCallEvaluationWithPromptOverwrite = noClasses()
+            .that()
+            .areNotAssignableTo(OptimizeCommand.class)
+            .should()
+            .callConstructor(Evaluation.class, Path.class, String.class);
 
     /**
      * Futures should be opened with a logger.

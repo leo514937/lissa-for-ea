@@ -77,6 +77,7 @@ public final class CacheManager {
      *
      * @param origin The class origin (caller, {@code this})
      * @param parameters a list of parameters that define what makes a cache unique. E.g., the model name, temperature, and seed.
+     * @param <K> The type of cache key used in this cache
      * @return A cache instance for the specified name
      */
     public <K extends CacheKey> Cache<K> getCache(Object origin, CacheParameter<K> parameters) {

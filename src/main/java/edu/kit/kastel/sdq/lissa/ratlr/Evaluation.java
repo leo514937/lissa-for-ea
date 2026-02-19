@@ -1,4 +1,4 @@
-/* Licensed under MIT 2025. */
+/* Licensed under MIT 2025-2026. */
 package edu.kit.kastel.sdq.lissa.ratlr;
 
 import java.io.IOException;
@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.kit.kastel.sdq.lissa.ratlr.artifactprovider.ArtifactProvider;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.Classifier;
-import edu.kit.kastel.sdq.lissa.ratlr.configuration.Configuration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.EvaluationConfiguration;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.EvaluationConfigurationBuilder;
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 import edu.kit.kastel.sdq.lissa.ratlr.elementstore.SourceElementStore;
 import edu.kit.kastel.sdq.lissa.ratlr.elementstore.TargetElementStore;
@@ -60,9 +63,9 @@ import edu.kit.kastel.sdq.lissa.ratlr.resultaggregator.ResultAggregator;
 public class Evaluation {
 
     private static final Logger logger = LoggerFactory.getLogger(Evaluation.class);
-    private final Path configFile;
+    private final @Nullable Path configFile;
 
-    private final Configuration configuration;
+    private final EvaluationConfiguration configuration;
 
     /** Provider for source artifacts */
     private ArtifactProvider sourceArtifactProvider;
@@ -109,7 +112,71 @@ public class Evaluation {
      */
     public Evaluation(Path configFile) throws IOException {
         this.configFile = Objects.requireNonNull(configFile);
-        configuration = new ObjectMapper().readValue(configFile.toFile(), Configuration.class);
+        configuration = new ObjectMapper().readValue(configFile.toFile(), EvaluationConfiguration.class);
+        setup();
+    }
+
+    /**
+     * Creates a new evaluation instance with the specified configuration file. The classification prompt in the
+     * configuration will internally be overwritten with the provided {@code prompt}. The original configuration file is not
+     * modified. Results of the {@link #run()} method will also include the overwritten prompt instead of the original one.
+     * This constructor:
+     * <ol>
+     *     <li>Validates the configuration file path</li>
+     *     <li>Loads and initializes the configuration</li>
+     *     <li>Overwrites the classification prompt in the configuration with the provided prompt</li>
+     *     <li>Sets up all required components for the pipeline, sharing a {@link ContextStore}</li>
+     * </ol>
+     *
+     * @param configFile Path to the configuration file
+     * @param prompt The prompt to use for classification
+     * @throws IOException If there are issues reading the configuration file
+     * @throws NullPointerException If configFile is null
+     */
+    public Evaluation(Path configFile, String prompt) throws IOException {
+        this.configFile = Objects.requireNonNull(configFile);
+        EvaluationConfiguration loadedConfiguration =
+                new ObjectMapper().readValue(configFile.toFile(), EvaluationConfiguration.class);
+        configuration = modifyConfigurationWithPrompt(prompt, loadedConfiguration);
+
+        setup();
+    }
+
+    private static EvaluationConfiguration modifyConfigurationWithPrompt(
+            String prompt, EvaluationConfiguration loadedConfiguration) {
+        if (prompt.isEmpty()) {
+            return loadedConfiguration;
+        }
+
+        logger.info("Modifying configuration with new prompt for optimization: {}", prompt);
+
+        ModuleConfiguration classifierConfig = loadedConfiguration.classifier();
+        if (classifierConfig == null) {
+            throw new IllegalArgumentException(
+                    "Prompt modification is only supported for configurations with a single 'classifier'. Configurations using multi-stage classifiers (e.g., 'classifiers') are not supported.");
+        }
+
+        ModuleConfiguration modifiedClassifier = loadedConfiguration
+                .classifier()
+                .with(Classifier.getClassificationPromptConfigurationKey(classifierConfig), prompt);
+        return EvaluationConfigurationBuilder.builder(loadedConfiguration)
+                .classifier(modifiedClassifier)
+                .build();
+    }
+
+    /**
+     * Creates a new evaluation instance with the specified configuration object.
+     * This constructor:
+     * <ol>
+     *     <li>Initializes the configuration</li>
+     *     <li>Sets up all required components for the pipeline, sharing a {@link ContextStore}</li>
+     * </ol>
+     * @param config The configuration object
+     * @throws IOException If there are issues setting up the cache
+     */
+    public Evaluation(EvaluationConfiguration config) throws IOException {
+        this.configuration = config;
+        this.configFile = null;
         setup();
     }
 
@@ -182,10 +249,15 @@ public class Evaluation {
         traceLinks = traceLinkIdPostProcessor.postprocess(traceLinks);
 
         logger.info("Evaluating Results");
+        String configFileName;
+        if (configFile != null) {
+            configFileName = configFile.toFile().getName();
+        } else {
+            configFileName = "in_memory_configuration.json";
+        }
         Statistics.generateStatistics(
-                traceLinks, configFile.toFile(), configuration, getSourceArtifactCount(), getTargetArtifactCount());
-        Statistics.saveTraceLinks(traceLinks, configFile.toFile(), configuration);
-
+                traceLinks, configFileName, configuration, getSourceArtifactCount(), getTargetArtifactCount());
+        Statistics.saveTraceLinks(traceLinks, configFileName, configuration);
         CacheManager.getDefaultInstance().flush();
 
         return traceLinks;
@@ -242,7 +314,7 @@ public class Evaluation {
      *
      * @return The configuration object
      */
-    public Configuration getConfiguration() {
+    public EvaluationConfiguration getConfiguration() {
         return configuration;
     }
 

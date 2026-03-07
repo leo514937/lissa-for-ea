@@ -27,17 +27,17 @@ You can access the paper [here](https://ardoco.de/c/icse25).
   - [Documentation to code](https://ardoco.de/c/icse25)
   - [Architecture documentation to architecture models](https://ardoco.de/c/icse25)
   - [Requirements to requirements](https://ardoco.de/c/refsq25)
+- **Advanced Retrieval Architectures**: Supports both standard IR-based召回 and modern **SLM-based Candidate Filtering (Path B)** using a Cartesian product approach for higher recall.
 - **Retrieval-Augmented Generation**: By combining LLMs with RAG, LiSSA enhances the accuracy and relevance of the recovered traceability links.
 
 ## Documentation
-
-The documentation is organized into several sections:
 
 - [Architecture](docs/architecture.md): Detailed information about the project's architecture and components
 - [Configuration](docs/configuration.md): Guide for configuring LiSSA
 - [CLI Usage](docs/cli.md): Information about using the command line interface
 - [Caching](docs/caching.md): Information about the caching system and Redis setup
 - [Development](docs/development.md): Development setup and contribution guidelines
+- [Prompt Optimization](docs/prompt-optimization.md): Guide for optimizing LLM prompts
 
 ## Getting Started
 
@@ -46,7 +46,7 @@ To get started with LiSSA, follow these steps:
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/ardoco/lissa
+   git clone https://github.com/leo514937/lissa-for-ea.git
    cd lissa
    ```
 2. **Install Dependencies**:
@@ -59,64 +59,27 @@ To get started with LiSSA, follow these steps:
    Execute the main application:
 
    ```bash
-   java -jar target/lissa-*-jar-with-dependencies.jar eval -c config.json
+   java -jar target/lissa-0.2.0-SNAPSHOT-jar-with-dependencies.jar eval -c config.json
    ```
 
-### Configuration
+### Performance & Comparison Tools
 
-1. Create a configuration you want to use for evaluation / execution. E.g., you can find configurations [here](https://github.com/ArDoCo/ReplicationPackage-ICSE25_LiSSA-Toward-Generic-Traceability-Link-Recovery-through-RAG/tree/main/LiSSA-RATLR-V2/lissa/configs/req2code-significance). You can also provide a directory containing multiple configurations.
-2. Configure your API keys for the language model platforms you plan to use as environment variables. See the [configuration documentation](docs/configuration.md#supported-platforms-and-environment-variables) for details on supported platforms (OpenAI, Open WebUI, Ollama, Blablador, DeepSeek) and their required environment variables.
-3. LiSSA caches requests in order to be reproducible. The cache is located in the cache folder that can be specified in the configuration.
-4. Run `java -jar target/lissa-*-jar-with-dependencies.jar eval -c configs/....` to run the evaluation. You can provide a JSON or a directory containing JSON configurations.
-5. The results will be printed to the console and saved to a file in the current directory. The name is also printed to the console.
+LiSSA includes a specialized script for comparing two different configurations (e.g., Before/After an optimization or comparing IR vs. SLM paths):
 
-### Results of Evaluation / Execution
-
-The results will be stored as markdown files.
-A result file can look like below.
-It contains the configuration and the results of the evaluation.
-Additionally, the LiSSA generate CSV files that contain the traceability links as pairs of identifiers.
-
-<details>
-<summary>Example Result</summary>
-
-```json
-## Configuration
-{
-  "cache_dir" : "./cache-r2c/dronology-dd--102959883",
-  "gold_standard_configuration" : {
-    "hasHeader" : false,
-    "path" : "./datasets/req2code/dronology-dd/answer.csv"
-  },
-  "... other configuration parameters ..."
-}
-
-## Stats
-* # TraceLinks (GS): 740
-* # Source Artifacts: 211
-* # Target Artifacts: 423
-## Results
-* True Positives: 283
-* False Positives: 1286
-* False Negatives: 457
-* Precision: 0.18036966220522627
-* Recall: 0.3824324324324324
-* F1: 0.24512776093546992
+```powershell
+.\tools\scripts\pipelines\compare_before_after.ps1 -BeforeConfig path/to/before.json -AfterConfig path/to/after.json
 ```
 
-</details>
+## Project Structure
 
-## Evaluation
+The project has been organized to keep utility scripts and datasets in a unified location:
 
-LiSSA has been empirically evaluated on four different TLR tasks:
-
-- Requirements to code
-- Documentation to code
-- Architecture documentation to architecture models
-- Requirements to requirements
-
-The results indicate that the RAG-based approach can significantly outperform state-of-the-art methods in code-related tasks.
-However, further research is needed to enhance its performance for broader applicability.
+- **`src/`**: Core Java implementation.
+- **`tools/`**:
+  - `datasets/`: Pre-configured datasets (WARC, Dronology, etc.).
+  - `scripts/`: Python and PowerShell utilities for pipeline management, configuration generation, and API health checks.
+  - `test-configs/`: Ready-to-use configurations for internal verification and benchmarking.
+- **`example-configs/`**: Reference configuration files for different scenarios.
 
 ## Contributing
 

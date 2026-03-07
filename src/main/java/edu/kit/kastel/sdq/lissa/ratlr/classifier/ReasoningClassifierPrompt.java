@@ -1,4 +1,4 @@
-/* Licensed under MIT 2025. */
+/* Licensed under MIT 2025-2026. */
 package edu.kit.kastel.sdq.lissa.ratlr.classifier;
 
 /**
@@ -21,7 +21,16 @@ public enum ReasoningClassifierPrompt {
      * Prompt that requires high certainty for positive responses.
      */
     REASON_WITH_NAME_YES_IF_CERTAIN(
-            "Below are two artifacts from the same software system.\n Is there a traceability link between (1) and (2)? Give your reasoning and then answer with 'yes' or 'no' enclosed in <trace> </trace>. Only answer yes if you are absolutely certain.\n (1) {source_type}: '''{source_content}''' \n (2) {target_type}: '''{target_content}''' ");
+            "Below are two artifacts from the same software system.\n Is there a traceability link between (1) and (2)? Give your reasoning and then answer with 'yes' or 'no' enclosed in <trace> </trace>. Only answer yes if you are absolutely certain.\n (1) {source_type}: '''{source_content}''' \n (2) {target_type}: '''{target_content}''' "),
+
+    /**
+     * CoT-style prompt tailored for requirements-to-requirements traceability experiments.
+     */
+    R2R_ENS_COT(
+            "You are an expert requirements engineer. Analyze the following two requirements from the same software system and decide whether they should be linked in the traceability matrix.\n"
+                    + "First, briefly explain your reasoning. Then answer strictly with 'yes' or 'no' enclosed in <trace> </trace> tags.\n"
+                    + "(1) {source_type}: '''{source_content}'''\n"
+                    + "(2) {target_type}: '''{target_content}''' ");
 
     /**
      * The template string for this prompt.

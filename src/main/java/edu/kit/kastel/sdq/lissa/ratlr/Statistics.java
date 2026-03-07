@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -21,21 +22,22 @@ import edu.kit.kastel.sdq.lissa.ratlr.configuration.OptimizerConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
 
 /**
- * Utility class for generating and saving statistics about trace link analysis results.
+ * Utility class for generating and saving statistics about trace link analysis
+ * results.
  * This class provides functionality to:
  * <ul>
- *     <li>Calculate classification metrics (precision, recall, F1)</li>
- *     <li>Generate detailed statistics reports</li>
- *     <li>Save trace links to CSV files</li>
- *     <li>Compare results against gold standards</li>
+ * <li>Calculate classification metrics (precision, recall, F1)</li>
+ * <li>Generate detailed statistics reports</li>
+ * <li>Save trace links to CSV files</li>
+ * <li>Compare results against gold standards</li>
  * </ul>
  *
  * The statistics include:
  * <ul>
- *     <li>Number of trace links in gold standard</li>
- *     <li>Number of source and target artifacts</li>
- *     <li>True positives, false positives, and false negatives</li>
- *     <li>Precision, recall, and F1 scores</li>
+ * <li>Number of trace links in gold standard</li>
+ * <li>Number of source and target artifacts</li>
+ * <li>True positives, false positives, and false negatives</li>
+ * <li>Precision, recall, and F1 scores</li>
  * </ul>
  */
 public final class Statistics {
@@ -49,15 +51,16 @@ public final class Statistics {
      * Generates statistics for trace link analysis results.
      * This method:
      * <ol>
-     *     <li>Loads the gold standard trace links</li>
-     *     <li>Calculates classification metrics</li>
-     *     <li>Generates a detailed report</li>
-     *     <li>Saves the report to a markdown file</li>
+     * <li>Loads the gold standard trace links</li>
+     * <li>Calculates classification metrics</li>
+     * <li>Generates a detailed report</li>
+     * <li>Saves the report to a markdown file</li>
      * </ol>
      *
-     * @param traceLinks Set of identified trace links
-     * @param configFileName  Evaluation configuration file name used for the analysis
-     * @param configuration Evaluation configuration object used for the analysis
+     * @param traceLinks      Set of identified trace links
+     * @param configFileName  Evaluation configuration file name used for the
+     *                        analysis
+     * @param configuration   Evaluation configuration object used for the analysis
      * @param sourceArtifacts Number of source artifacts
      * @param targetArtifacts Number of target artifacts
      * @throws UncheckedIOException If there are issues writing the statistics file
@@ -79,22 +82,23 @@ public final class Statistics {
     }
 
     /**
-     * Generates statistics for trace link analysis results with custom configuration identifier.
+     * Generates statistics for trace link analysis results with custom
+     * configuration identifier.
      * This method:
      * <ol>
-     *     <li>Validates the gold standard configuration</li>
-     *     <li>Loads valid trace links from the gold standard</li>
-     *     <li>Calculates classification metrics</li>
-     *     <li>Generates a detailed report with configuration and results</li>
-     *     <li>Saves the report to a markdown file</li>
+     * <li>Validates the gold standard configuration</li>
+     * <li>Loads valid trace links from the gold standard</li>
+     * <li>Calculates classification metrics</li>
+     * <li>Generates a detailed report with configuration and results</li>
+     * <li>Saves the report to a markdown file</li>
      * </ol>
      *
-     * @param configurationIdentifier Unique identifier for the configuration
-     * @param configurationSummary Summary of the configuration used
-     * @param traceLinks Set of identified trace links
+     * @param configurationIdentifier   Unique identifier for the configuration
+     * @param configurationSummary      Summary of the configuration used
+     * @param traceLinks                Set of identified trace links
      * @param goldStandardConfiguration Gold standard configuration for comparison
-     * @param sourceArtifacts Number of source artifacts
-     * @param targetArtifacts Number of target artifacts
+     * @param sourceArtifacts           Number of source artifacts
+     * @param targetArtifacts           Number of target artifacts
      * @throws UncheckedIOException If there are issues writing the statistics file
      */
     public static void generateStatistics(
@@ -118,8 +122,14 @@ public final class Statistics {
         var classification = cmc.calculateMetrics(traceLinks, validTraceLinks, null);
         classification.prettyPrint();
 
+        // Create results directory
+        Path resultsDir = getEvaluationDirectory(configurationIdentifier);
+
+        // Store configuration
+        saveConfiguration(resultsDir, configurationSummary);
+
         // Store information to one file (config and results)
-        var resultFile = new File("results-" + configurationIdentifier + ".md");
+        var resultFile = resultsDir.resolve("results.md").toFile();
         StringBuilder result = new StringBuilder();
         result.append(configurationToString(configurationIdentifier, configurationSummary));
         result.append("## Stats\n");
@@ -140,9 +150,27 @@ public final class Statistics {
         result.append("* Recall: ").append(classification.getRecall()).append("\n");
         result.append("* F1: ").append(classification.getF1()).append("\n");
 
-        logger.info("Storing results to {}", resultFile.getName());
+        logger.info("Storing results to {}", resultFile.getAbsolutePath());
         try {
             Files.writeString(resultFile.toPath(), result.toString(), StandardOpenOption.CREATE);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static Path getEvaluationDirectory(String identifier) {
+        Path evalDir = Path.of("evaluations", "run_" + identifier);
+        try {
+            Files.createDirectories(evalDir);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return evalDir;
+    }
+
+    private static void saveConfiguration(Path directory, String summary) {
+        try {
+            Files.writeString(directory.resolve("config.json"), summary, StandardOpenOption.CREATE);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -152,15 +180,17 @@ public final class Statistics {
      * Loads trace links from a gold standard file.
      * This method:
      * <ol>
-     *     <li>Reads the gold standard file</li>
-     *     <li>Skips header if configured</li>
-     *     <li>Parses each line into a trace link</li>
-     *     <li>Handles column swapping if configured</li>
+     * <li>Reads the gold standard file</li>
+     * <li>Skips header if configured</li>
+     * <li>Parses each line into a trace link</li>
+     * <li>Handles column swapping if configured</li>
      * </ol>
      *
-     * @param goldStandardConfiguration EvaluationConfiguration for the gold standard file
+     * @param goldStandardConfiguration EvaluationConfiguration for the gold
+     *                                  standard file
      * @return Set of valid trace links from the gold standard
-     * @throws UncheckedIOException If there are issues reading the gold standard file
+     * @throws UncheckedIOException If there are issues reading the gold standard
+     *                              file
      */
     public static Set<TraceLink> getTraceLinksFromGoldStandard(GoldStandardConfiguration goldStandardConfiguration) {
         File groundTruth = new File(goldStandardConfiguration.path());
@@ -185,32 +215,34 @@ public final class Statistics {
      * Saves trace links to a CSV file based on configuration.
      * This method:
      * <ol>
-     *     <li>Generates a filename based on the configuration</li>
-     *     <li>Delegates to the main save method</li>
+     * <li>Generates a filename based on the configuration</li>
+     * <li>Delegates to the main save method</li>
      * </ol>
      *
-     * @param traceLinks Set of trace links to save
-     * @param configFileName Evaluation configuration file name used for the analysis
-     * @param configuration Evaluation configuration object used for the analysis
+     * @param traceLinks     Set of trace links to save
+     * @param configFileName Evaluation configuration file name used for the
+     *                       analysis
+     * @param configuration  Evaluation configuration object used for the analysis
      * @throws UncheckedIOException If there are issues writing the trace links file
      */
     public static void saveTraceLinks(
             Set<TraceLink> traceLinks, String configFileName, EvaluationConfiguration configuration)
             throws UncheckedIOException {
-        var fileName = "traceLinks-" + configuration.getConfigurationIdentifierForFile(configFileName) + ".csv";
-        saveTraceLinks(traceLinks, fileName);
+        var identifier = configuration.getConfigurationIdentifierForFile(configFileName);
+        Path resultsDir = getEvaluationDirectory(identifier);
+        saveTraceLinks(traceLinks, resultsDir.resolve("traceLinks.csv").toString());
     }
 
     /**
      * Saves trace links to a CSV file.
      * This method:
      * <ol>
-     *     <li>Sorts trace links by source and target IDs</li>
-     *     <li>Converts trace links to CSV format</li>
-     *     <li>Writes the result to the specified file</li>
+     * <li>Sorts trace links by source and target IDs</li>
+     * <li>Converts trace links to CSV format</li>
+     * <li>Writes the result to the specified file</li>
      * </ol>
      *
-     * @param traceLinks Set of trace links to save
+     * @param traceLinks  Set of trace links to save
      * @param destination Path to the output file
      * @throws UncheckedIOException If there are issues writing the trace links file
      */
@@ -224,7 +256,7 @@ public final class Statistics {
                 .map(it -> it.sourceId() + "," + it.targetId())
                 .collect(Collectors.joining("\n"));
         try {
-            Files.writeString(new File(destination).toPath(), csvResult, StandardOpenOption.CREATE);
+            Files.writeString(Path.of(destination), csvResult, StandardOpenOption.CREATE);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -235,12 +267,13 @@ public final class Statistics {
      *
      * This method:
      * <ol>
-     *     <li>Generates a detailed report with configuration and results</li>
-     *     <li>Saves the report to a markdown file</li>
+     * <li>Generates a detailed report with configuration and results</li>
+     * <li>Saves the report to a markdown file</li>
      * </ol>
-     * @param configFile EvaluationConfiguration file used for the optimization
+     *
+     * @param configFile    EvaluationConfiguration file used for the optimization
      * @param configuration EvaluationConfiguration object used for the optimization
-     * @param prompt Optimized prompt generated during the optimization
+     * @param prompt        Optimized prompt generated during the optimization
      * @throws UncheckedIOException If there are issues writing the statistics file
      */
     public static void generateOptimizationStatistics(
@@ -252,30 +285,34 @@ public final class Statistics {
     }
 
     /**
-     * Generates statistics for prompt optimization with custom configuration identifier.
+     * Generates statistics for prompt optimization with custom configuration
+     * identifier.
      *
      * This method:
      * <ol>
-     *     <li>Generates a detailed report with configuration and results</li>
-     *     <li>Saves the report to a markdown file</li>
+     * <li>Generates a detailed report with configuration and results</li>
+     * <li>Saves the report to a markdown file</li>
      * </ol>
      *
      * @param configurationIdentifier Unique identifier for the configuration
-     * @param configurationSummary Summary of the configuration used
-     * @param prompt Optimized prompt used in the analysis
+     * @param configurationSummary    Summary of the configuration used
+     * @param prompt                  Optimized prompt used in the analysis
      * @throws UncheckedIOException If there are issues writing the statistics file
      */
     public static void generateOptimizationStatistics(
             String configurationIdentifier, String configurationSummary, String prompt) throws UncheckedIOException {
 
+        Path resultsDir = getEvaluationDirectory(configurationIdentifier);
+        saveConfiguration(resultsDir, configurationSummary);
+
         // Store information to one file (config and results)
-        var resultFile = new File("results-prompt-optimization-" + configurationIdentifier + ".md");
+        var resultFile = resultsDir.resolve("results-prompt-optimization.md").toFile();
         StringBuilder result = new StringBuilder();
         result.append(configurationToString(configurationIdentifier, configurationSummary));
         result.append("## Stats\n");
         result.append(" * Optimized Prompt: ").append(escapeMarkdown(prompt)).append("\n");
 
-        logger.info("Storing results to {}", resultFile.getName());
+        logger.info("Storing results to {}", resultFile.getAbsolutePath());
         try {
             Files.writeString(resultFile.toPath(), result.toString(), StandardOpenOption.CREATE);
         } catch (IOException e) {

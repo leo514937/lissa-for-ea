@@ -1,0 +1,1 @@
+"If a flight plan is active and the ""hover in place"" command is rescinded  the _FlightManager_ shall notify the UAV to continue to the originally designated waypoint."

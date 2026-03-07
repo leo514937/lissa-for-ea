@@ -1,0 +1,1 @@
+When a UAV's current flight is cancelled  the _SingleUAVFlightPlanScheduler_ shall in turn cancel all scheduled flight plans for that UAV.

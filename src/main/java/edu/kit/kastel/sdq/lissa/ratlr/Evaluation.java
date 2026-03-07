@@ -16,7 +16,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.kit.kastel.sdq.lissa.ratlr.artifactprovider.ArtifactProvider;
 import edu.kit.kastel.sdq.lissa.ratlr.cache.CacheManager;
+import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationResult;
+import edu.kit.kastel.sdq.lissa.ratlr.classifier.ClassificationTask;
 import edu.kit.kastel.sdq.lissa.ratlr.classifier.Classifier;
+import edu.kit.kastel.sdq.lissa.ratlr.classifier.LLMEnsembleFilter;
+import edu.kit.kastel.sdq.lissa.ratlr.classifier.LLMEnsembleFilterFactory;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.EvaluationConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.EvaluationConfigurationBuilder;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
@@ -30,34 +34,40 @@ import edu.kit.kastel.sdq.lissa.ratlr.knowledge.TraceLink;
 import edu.kit.kastel.sdq.lissa.ratlr.postprocessor.TraceLinkIdPostprocessor;
 import edu.kit.kastel.sdq.lissa.ratlr.preprocessor.Preprocessor;
 import edu.kit.kastel.sdq.lissa.ratlr.resultaggregator.ResultAggregator;
+import edu.kit.kastel.sdq.lissa.ratlr.utils.CartesianCandidateGenerator;
+import edu.kit.kastel.sdq.lissa.ratlr.utils.Pair;
 
 /**
  * Represents a single evaluation run of the LiSSA framework.
- * This class manages the complete trace link analysis pipeline for a given configuration,
+ * This class manages the complete trace link analysis pipeline for a given
+ * configuration,
  * including:
  * <ul>
- *     <li>Artifact loading from source and target providers</li>
- *     <li>Preprocessing of artifacts into elements</li>
- *     <li>Embedding calculation for elements</li>
- *     <li>Classification of potential trace links</li>
- *     <li>Result aggregation and postprocessing</li>
- *     <li>Statistics generation and result storage</li>
+ * <li>Artifact loading from source and target providers</li>
+ * <li>Preprocessing of artifacts into elements</li>
+ * <li>Embedding calculation for elements</li>
+ * <li>Classification of potential trace links</li>
+ * <li>Result aggregation and postprocessing</li>
+ * <li>Statistics generation and result storage</li>
  * </ul>
  * <p>
- * The pipeline uses a {@link edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore} to share context objects
- * between components such as artifact providers, preprocessors, embedding creators, classifiers, and aggregators.
+ * The pipeline uses a
+ * {@link edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore} to share context
+ * objects
+ * between components such as artifact providers, preprocessors, embedding
+ * creators, classifiers, and aggregators.
  * </p>
  *
  * The pipeline follows these steps:
  * <ol>
- *     <li>Load artifacts from configured providers</li>
- *     <li>Preprocess artifacts into elements</li>
- *     <li>Calculate embeddings for elements</li>
- *     <li>Build element stores for efficient access</li>
- *     <li>Classify potential trace links</li>
- *     <li>Aggregate results into final trace links</li>
- *     <li>Postprocess trace link IDs</li>
- *     <li>Generate and save statistics</li>
+ * <li>Load artifacts from configured providers</li>
+ * <li>Preprocess artifacts into elements</li>
+ * <li>Calculate embeddings for elements</li>
+ * <li>Build element stores for efficient access</li>
+ * <li>Classify potential trace links</li>
+ * <li>Aggregate results into final trace links</li>
+ * <li>Postprocess trace link IDs</li>
+ * <li>Generate and save statistics</li>
  * </ol>
  */
 public class Evaluation {
@@ -98,16 +108,23 @@ public class Evaluation {
     private List<Element> targetElements = new ArrayList<>();
 
     /**
+     * Shared context store for all pipeline components of this evaluation.
+     */
+    private ContextStore contextStore;
+
+    /**
      * Creates a new evaluation instance with the specified configuration file.
      * This constructor:
      * <ol>
-     *     <li>Validates the configuration file path</li>
-     *     <li>Loads and initializes the configuration</li>
-     *     <li>Sets up all required components for the pipeline, sharing a {@link ContextStore}</li>
+     * <li>Validates the configuration file path</li>
+     * <li>Loads and initializes the configuration</li>
+     * <li>Sets up all required components for the pipeline, sharing a
+     * {@link ContextStore}</li>
      * </ol>
      *
      * @param configFile Path to the configuration file
-     * @throws IOException If there are issues reading the configuration file
+     * @throws IOException          If there are issues reading the configuration
+     *                              file
      * @throws NullPointerException If configFile is null
      */
     public Evaluation(Path configFile) throws IOException {
@@ -117,20 +134,26 @@ public class Evaluation {
     }
 
     /**
-     * Creates a new evaluation instance with the specified configuration file. The classification prompt in the
-     * configuration will internally be overwritten with the provided {@code prompt}. The original configuration file is not
-     * modified. Results of the {@link #run()} method will also include the overwritten prompt instead of the original one.
+     * Creates a new evaluation instance with the specified configuration file. The
+     * classification prompt in the
+     * configuration will internally be overwritten with the provided
+     * {@code prompt}. The original configuration file is not
+     * modified. Results of the {@link #run()} method will also include the
+     * overwritten prompt instead of the original one.
      * This constructor:
      * <ol>
-     *     <li>Validates the configuration file path</li>
-     *     <li>Loads and initializes the configuration</li>
-     *     <li>Overwrites the classification prompt in the configuration with the provided prompt</li>
-     *     <li>Sets up all required components for the pipeline, sharing a {@link ContextStore}</li>
+     * <li>Validates the configuration file path</li>
+     * <li>Loads and initializes the configuration</li>
+     * <li>Overwrites the classification prompt in the configuration with the
+     * provided prompt</li>
+     * <li>Sets up all required components for the pipeline, sharing a
+     * {@link ContextStore}</li>
      * </ol>
      *
      * @param configFile Path to the configuration file
-     * @param prompt The prompt to use for classification
-     * @throws IOException If there are issues reading the configuration file
+     * @param prompt     The prompt to use for classification
+     * @throws IOException          If there are issues reading the configuration
+     *                              file
      * @throws NullPointerException If configFile is null
      */
     public Evaluation(Path configFile, String prompt) throws IOException {
@@ -168,9 +191,11 @@ public class Evaluation {
      * Creates a new evaluation instance with the specified configuration object.
      * This constructor:
      * <ol>
-     *     <li>Initializes the configuration</li>
-     *     <li>Sets up all required components for the pipeline, sharing a {@link ContextStore}</li>
+     * <li>Initializes the configuration</li>
+     * <li>Sets up all required components for the pipeline, sharing a
+     * {@link ContextStore}</li>
      * </ol>
+     *
      * @param config The configuration object
      * @throws IOException If there are issues setting up the cache
      */
@@ -184,15 +209,15 @@ public class Evaluation {
      * Sets up the evaluation pipeline components.
      * This method:
      * <ol>
-     *     <li>Loads the configuration from file</li>
-     *     <li>Initializes the cache manager</li>
-     *     <li>Creates artifact providers</li>
-     *     <li>Creates preprocessors</li>
-     *     <li>Creates embedding creator</li>
-     *     <li>Creates element stores</li>
-     *     <li>Creates classifier</li>
-     *     <li>Creates result aggregator</li>
-     *     <li>Creates trace link ID postprocessor</li>
+     * <li>Loads the configuration from file</li>
+     * <li>Initializes the cache manager</li>
+     * <li>Creates artifact providers</li>
+     * <li>Creates preprocessors</li>
+     * <li>Creates embedding creator</li>
+     * <li>Creates element stores</li>
+     * <li>Creates classifier</li>
+     * <li>Creates result aggregator</li>
+     * <li>Creates trace link ID postprocessor</li>
      * </ol>
      *
      * @throws IOException If there are issues reading the configuration
@@ -200,7 +225,7 @@ public class Evaluation {
     private void setup() throws IOException {
         CacheManager.setCacheDir(configuration.cacheDir());
 
-        ContextStore contextStore = new ContextStore();
+        contextStore = new ContextStore();
 
         sourceArtifactProvider =
                 ArtifactProvider.createArtifactProvider(configuration.sourceArtifactProvider(), contextStore);
@@ -218,22 +243,20 @@ public class Evaluation {
 
         traceLinkIdPostProcessor = TraceLinkIdPostprocessor.createTraceLinkIdPostprocessor(
                 configuration.traceLinkIdPostprocessor(), contextStore);
-
-        configuration.serializeAndDestroyConfiguration();
     }
 
     /**
      * Runs the complete trace link analysis pipeline.
      * This method:
      * <ol>
-     *     <li>Loads artifacts from providers</li>
-     *     <li>Preprocesses artifacts into elements</li>
-     *     <li>Calculates embeddings for elements</li>
-     *     <li>Builds element stores</li>
-     *     <li>Classifies potential trace links</li>
-     *     <li>Aggregates results</li>
-     *     <li>Postprocesses trace link IDs</li>
-     *     <li>Generates and saves statistics</li>
+     * <li>Loads artifacts from providers</li>
+     * <li>Preprocesses artifacts into elements</li>
+     * <li>Calculates embeddings for elements</li>
+     * <li>Builds element stores</li>
+     * <li>Classifies potential trace links</li>
+     * <li>Aggregates results</li>
+     * <li>Postprocesses trace link IDs</li>
+     * <li>Generates and saves statistics</li>
      * </ol>
      *
      * @return Set of identified trace links
@@ -242,18 +265,38 @@ public class Evaluation {
         initializeSourceAndTargetStores();
 
         logger.info("Classifying Tracelinks");
-        var llmResults = classifier.classify(sourceStore, targetStore);
+        List<ClassificationResult> llmResults;
+        if (configuration.candidateFilterChain() != null
+                && !configuration.candidateFilterChain().isEmpty()) {
+            logger.info("Using SLM ensemble candidate filter chain with Cartesian candidates.");
+            // Cartesian product of source and target elements
+            List<Pair<Element, Element>> allPairs =
+                    CartesianCandidateGenerator.generate(sourceElements, targetElements);
+            LLMEnsembleFilter slmFilter =
+                    LLMEnsembleFilterFactory.createChainedFilter(configuration.candidateFilterChain(), contextStore);
+            List<Pair<Element, Element>> filteredPairs = slmFilter.filterCandidates(allPairs);
+            List<ClassificationTask> tasks = filteredPairs.stream()
+                    .map(p -> new ClassificationTask(p.first(), p.second(), true))
+                    .toList();
+            llmResults = classifier.classify(tasks);
+        } else {
+            logger.info("Using standard IR-based classification pipeline.");
+            llmResults = classifier.classify(sourceStore, targetStore);
+        }
         var traceLinks = aggregator.aggregate(sourceElements, targetElements, llmResults);
 
         logger.info("Postprocessing Tracelinks");
         traceLinks = traceLinkIdPostProcessor.postprocess(traceLinks);
 
         logger.info("Evaluating Results");
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+        String formattedTime = now.format(formatter);
         String configFileName;
         if (configFile != null) {
-            configFileName = configFile.toFile().getName();
+            configFileName = formattedTime + "_" + configFile.toFile().getName();
         } else {
-            configFileName = "in_memory_configuration.json";
+            configFileName = formattedTime + "_in_memory_configuration.json";
         }
         Statistics.generateStatistics(
                 traceLinks, configFileName, configuration, getSourceArtifactCount(), getTargetArtifactCount());
@@ -267,13 +310,13 @@ public class Evaluation {
      * Sets up the source and target element stores.
      * This method:
      * <ol>
-     *     <li>Loads artifacts from source and target providers</li>
-     *     <li>Preprocesses artifacts into elements</li>
-     *     <li>Calculates embeddings for elements</li>
-     *     <li>Builds element stores with elements and embeddings</li>
+     * <li>Loads artifacts from source and target providers</li>
+     * <li>Preprocesses artifacts into elements</li>
+     * <li>Calculates embeddings for elements</li>
+     * <li>Builds element stores with elements and embeddings</li>
      * </ol>
      */
-    /*package-private*/ void initializeSourceAndTargetStores() {
+    /* package-private */ void initializeSourceAndTargetStores() {
         logger.info("Loading artifacts");
         List<Artifact> sourceArtifacts = sourceArtifactProvider.getArtifacts();
         List<Artifact> targetArtifacts = targetArtifactProvider.getArtifacts();

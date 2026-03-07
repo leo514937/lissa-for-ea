@@ -1,0 +1,1 @@
+The _UIMiddleware_ shall only assign one control-client at a time for each UAV.

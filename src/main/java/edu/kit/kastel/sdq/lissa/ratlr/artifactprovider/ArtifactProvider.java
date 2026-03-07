@@ -1,4 +1,4 @@
-/* Licensed under MIT 2025. */
+/* Licensed under MIT 2025-2026. */
 package edu.kit.kastel.sdq.lissa.ratlr.artifactprovider;
 
 import java.util.List;
@@ -73,6 +73,7 @@ public abstract class ArtifactProvider {
         return switch (configuration.name()) {
             case "text" -> new TextArtifactProvider(configuration, contextStore);
             case "recursive_text" -> new RecursiveTextArtifactProvider(configuration, contextStore);
+            case "dronology_dataset" -> new DronologyDatasetArtifactProvider(configuration, contextStore);
             default -> throw new IllegalStateException("Unexpected value: " + configuration.name());
         };
     }

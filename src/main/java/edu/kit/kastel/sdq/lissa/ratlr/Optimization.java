@@ -21,10 +21,11 @@ import edu.kit.kastel.sdq.lissa.ratlr.promptoptimizer.promptmetric.Metric;
 
 /**
  * Represents a single prompt optimization run of the LiSSA framework.
- * This class utilizes the general {@link Evaluation} pipeline and extends it by an optimization step at the end.
+ * This class utilizes the general {@link Evaluation} pipeline and extends it by
+ * an optimization step at the end.
  * The pipeline adds these steps:
  * <ol>
- *     <li>Optimizes the prompt</li>
+ * <li>Optimizes the prompt</li>
  * </ol>
  */
 public class Optimization {
@@ -36,7 +37,8 @@ public class Optimization {
 
     /**
      * The evaluation pipeline used for the optimization.
-     * This pipeline includes all steps from artifact provision to trace link classification.
+     * This pipeline includes all steps from artifact provision to trace link
+     * classification.
      */
     private Evaluation evaluationPipeline;
     /**
@@ -48,13 +50,14 @@ public class Optimization {
      * Creates a new evaluation instance with the specified configuration file.
      * This constructor:
      * <ol>
-     *     <li>Validates the configuration file path</li>
-     *     <li>Loads and initializes the configuration</li>
-     *     <li>Sets up all required components for the pipeline</li>
+     * <li>Validates the configuration file path</li>
+     * <li>Loads and initializes the configuration</li>
+     * <li>Sets up all required components for the pipeline</li>
      * </ol>
      *
      * @param configFile Path to the configuration file
-     * @throws IOException          If there are issues reading the configuration file
+     * @throws IOException          If there are issues reading the configuration
+     *                              file
      * @throws NullPointerException If configFile is null
      */
     public Optimization(Path configFile) throws IOException {
@@ -63,12 +66,13 @@ public class Optimization {
     }
 
     /**
-     * Sets up the optimization pipeline by loading the configuration and initializing all required components.
+     * Sets up the optimization pipeline by loading the configuration and
+     * initializing all required components.
      * This method:
      * <ol>
-     *     <li>Loads the configuration from the specified file</li>
-     *     <li>Initializes the evaluation pipeline</li>
-     *     <li>Creates the Metric, Evaluator and Optimizer</li>
+     * <li>Loads the configuration from the specified file</li>
+     * <li>Initializes the evaluation pipeline</li>
+     * <li>Creates the Metric, Evaluator and Optimizer</li>
      * </ol>
      *
      * @throws IOException If there are issues reading the configuration
@@ -93,10 +97,10 @@ public class Optimization {
      * Runs the optimization pipeline.
      * This method:
      * <ol>
-     *     <li>Sets up the source and target stores</li>
-     *     <li>Optimizes the prompt using the configured optimizer</li>
-     *     <li>Generates and saves optimization statistics</li>
-     *     <li>Flushes the cache to persist changes</li>
+     * <li>Sets up the source and target stores</li>
+     * <li>Optimizes the prompt using the configured optimizer</li>
+     * <li>Generates and saves optimization statistics</li>
+     * <li>Flushes the cache to persist changes</li>
      * </ol>
      *
      * @return The optimized prompt as a String
@@ -109,7 +113,14 @@ public class Optimization {
                 promptOptimizer.optimize(evaluationPipeline.getSourceStore(), evaluationPipeline.getTargetStore());
         logger.info("Optimized Prompt: {}", result);
 
-        Statistics.generateOptimizationStatistics(configFile.toFile(), configuration, result);
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+        String formattedTime = now.format(formatter);
+        java.io.File spoofedFile = new java.io.File(
+                configFile.toFile().getParentFile(),
+                formattedTime + "_" + configFile.toFile().getName());
+
+        Statistics.generateOptimizationStatistics(spoofedFile, configuration, result);
 
         CacheManager.getDefaultInstance().flush();
 

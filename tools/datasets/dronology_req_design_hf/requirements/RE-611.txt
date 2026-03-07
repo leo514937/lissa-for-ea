@@ -1,0 +1,1 @@
+The _ActivityLogger_ shall log all flight plan related events.

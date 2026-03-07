@@ -1,0 +1,1 @@
+When the maximum numbers of allowed activated UAVs has been reached  the _UAVActivationManager_ shall reject any further activation requests.

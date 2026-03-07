@@ -1,0 +1,1 @@
+If a scheduled flight is not manually assigned to a UAV  the _SingleUAVFlightPlanScheduler_ shall assign the route automatically to an UAV

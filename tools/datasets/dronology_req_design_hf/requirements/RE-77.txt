@@ -1,0 +1,1 @@
+Each waypoint shall be specified using coordinates that include longitude  latitude  and altitude.

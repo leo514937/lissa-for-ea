@@ -94,7 +94,17 @@ public record EvaluationConfiguration(
         /**
          * EvaluationConfiguration for the trace link ID postprocessor.
          */
-        @JsonProperty("tracelinkid_postprocessor") @Nullable ModuleConfiguration traceLinkIdPostprocessor)
+        @JsonProperty("tracelinkid_postprocessor") @Nullable ModuleConfiguration traceLinkIdPostprocessor,
+
+        /**
+         * Optional configuration for an SLM-based candidate filter chain.
+         * <p>
+         * Each inner list represents one stage in the chain, and each stage
+         * contains one or more classifier configurations. Stages are applied
+         * sequentially with per-stage majority voting semantics.
+         * </p>
+         */
+        @JsonProperty("candidate_filter_chain") @Nullable List<List<ModuleConfiguration>> candidateFilterChain)
         implements EvaluationConfigurationBuilder.With, SerializableConfiguration {
 
     /**
@@ -128,6 +138,13 @@ public record EvaluationConfiguration(
         if (traceLinkIdPostprocessor != null) {
             traceLinkIdPostprocessor.finalizeForSerialization();
         }
+        if (candidateFilterChain != null) {
+            for (var stage : candidateFilterChain) {
+                for (var module : stage) {
+                    module.finalizeForSerialization();
+                }
+            }
+        }
 
         try {
             return new ObjectMapper()
@@ -159,7 +176,8 @@ public record EvaluationConfiguration(
                 + classifier + ", classifiers="
                 + classifiers + ", resultAggregator="
                 + resultAggregator + ", traceLinkIdPostprocessor="
-                + traceLinkIdPostprocessor + '}';
+                + traceLinkIdPostprocessor + ", candidateFilterChain="
+                + candidateFilterChain + '}';
     }
 
     /**

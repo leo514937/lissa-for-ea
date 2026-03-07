@@ -1,0 +1,1 @@
+When a flight plan is executed  the _VehicleCore_ shall send the next waypoint to the UAV.

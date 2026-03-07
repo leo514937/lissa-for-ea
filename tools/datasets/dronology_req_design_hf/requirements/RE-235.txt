@@ -1,0 +1,1 @@
+When the _GCS_ loses the connection to an UAV  the _GCS_ shall attempt to reconnect

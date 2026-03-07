@@ -130,7 +130,7 @@ public class PipelineClassifier extends Classifier {
         }
 
         List<Pair<Element, Element>> remainingTargetsAfterMajorityVote = new ArrayList<>();
-        int majorityThreshold = (int) Math.ceil(classifiers.size() / 2.0);
+        int majorityThreshold = (classifiers.size() / 2) + 1;
         for (var entry : counter.entrySet()) {
             if (entry.getValue().get() >= majorityThreshold) {
                 remainingTargetsAfterMajorityVote.add(entry.getKey());

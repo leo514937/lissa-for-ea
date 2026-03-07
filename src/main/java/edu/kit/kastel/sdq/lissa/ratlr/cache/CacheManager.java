@@ -11,8 +11,10 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Manages caching operations in the LiSSA framework.
- * This class provides a centralized way to create and access caches for different purposes,
- * such as storing embeddings or chat responses. It supports both local file-based caching
+ * This class provides a centralized way to create and access caches for
+ * different purposes,
+ * such as storing embeddings or chat responses. It supports both local
+ * file-based caching
  * and Redis-based caching with automatic synchronization.
  */
 public final class CacheManager {
@@ -22,8 +24,10 @@ public final class CacheManager {
     public static final String DEFAULT_CACHE_DIRECTORY = "cache";
 
     /**
-     * The default strategy for handling cache conflicts between local and Redis caches.
-     * When true, Redis values take precedence over local cache values in case of conflicts.
+     * The default strategy for handling cache conflicts between local and Redis
+     * caches.
+     * When true, Redis values take precedence over local cache values in case of
+     * conflicts.
      */
     private static final boolean DEFAULT_REPLACE_LOCAL_CACHE_ON_CONFLICT = true;
 
@@ -35,7 +39,8 @@ public final class CacheManager {
      * Sets the cache directory for the default cache manager instance.
      * This method must be called before using the default instance.
      *
-     * @param directory The path to the cache directory, or null to use the default directory
+     * @param directory The path to the cache directory, or null to use the default
+     *                  directory
      * @throws IOException If the cache directory cannot be created
      */
     public static synchronized void setCacheDir(@Nullable String directory) throws IOException {
@@ -47,7 +52,7 @@ public final class CacheManager {
      * The directory will be created if it doesn't exist.
      *
      * @param cacheDir The path to the cache directory
-     * @throws IOException If the cache directory cannot be created
+     * @throws IOException              If the cache directory cannot be created
      * @throws IllegalArgumentException If the path exists but is not a directory
      */
     public CacheManager(Path cacheDir) throws IOException {
@@ -60,7 +65,8 @@ public final class CacheManager {
 
     /**
      * Gets the default cache manager instance.
-     * The cache directory must be set using {@link #setCacheDir(String)} before calling this method.
+     * The cache directory must be set using {@link #setCacheDir(String)} before
+     * calling this method.
      *
      * @return The default cache manager instance
      * @throws IllegalStateException If the cache directory has not been set
@@ -75,9 +81,10 @@ public final class CacheManager {
      * This method is designed for internal use by model implementations.
      * The cache name will be sanitized by replacing colons with double underscores.
      *
-     * @param origin The class origin (caller, {@code this})
-     * @param parameters a list of parameters that define what makes a cache unique. E.g., the model name, temperature, and seed.
-     * @param <K> The type of cache key used in this cache
+     * @param origin     The class origin (caller, {@code this})
+     * @param parameters a list of parameters that define what makes a cache unique.
+     *                   E.g., the model name, temperature, and seed.
+     * @param <K>        The type of cache key used in this cache
      * @return A cache instance for the specified name
      */
     public <K extends CacheKey> Cache<K> getCache(Object origin, CacheParameter<K> parameters) {
@@ -91,12 +98,12 @@ public final class CacheManager {
     /**
      * Gets a cache instance for the specified name and parameters.
      *
-     * @param name The name of the cache
+     * @param name       The name of the cache
      * @param parameters The parameters that define the cache configuration
      * @return A cache instance for the specified name
      */
     private <K extends CacheKey> Cache<K> getCache(String name, CacheParameter<K> parameters) {
-        name = name.replace(":", "__");
+        name = name.replace(":", "__").replace("/", "_");
 
         if (caches.containsKey(name)) {
             @SuppressWarnings("unchecked")

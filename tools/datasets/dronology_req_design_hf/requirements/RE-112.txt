@@ -1,0 +1,1 @@
+If a command is issued by the _VaadinUI_ for an UAV  the _VaadinUI_ shall request control of that UAV.

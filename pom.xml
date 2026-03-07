@@ -185,11 +185,11 @@
               <formatJavadoc>false</formatJavadoc>
             </palantirJavaFormat>
             <importOrder>
-              <file>${maven.multiModuleProjectDirectory}/spotless.importorder</file>
+              <file>${project.basedir}/tools/build/spotless.importorder</file>
             </importOrder>
             <licenseHeader>
               <!--suppress UnresolvedMavenProperty -->
-              <file>${maven.multiModuleProjectDirectory}/header.txt</file>
+              <file>${project.basedir}/tools/build/header.txt</file>
             </licenseHeader>
             <removeUnusedImports />
           </java>

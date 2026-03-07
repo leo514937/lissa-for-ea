@@ -1,0 +1,1 @@
+When loading the map view it shall be positioned at the pre-defined location

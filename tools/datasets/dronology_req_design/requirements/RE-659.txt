@@ -1,0 +1,1 @@
+﻿When a user shall cancels a pending flight plan the _RouteAssignmentUI_ shall notify Dronology.

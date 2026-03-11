@@ -266,14 +266,21 @@ public class Evaluation {
 
         logger.info("Classifying Tracelinks");
         List<ClassificationResult> llmResults;
-        if (configuration.candidateFilterChain() != null
-                && !configuration.candidateFilterChain().isEmpty()) {
+        List<List<ModuleConfiguration>> candidateFilterChain = configuration.resolveCandidateFilterChain();
+        if (configuration.candidateFilterMode() != null
+                && (candidateFilterChain == null || candidateFilterChain.isEmpty())) {
+            throw new IllegalArgumentException("Candidate filter mode set, but selected candidate filter chain is empty.");
+        }
+        if (candidateFilterChain != null && !candidateFilterChain.isEmpty()) {
             logger.info("Using SLM ensemble candidate filter chain with Cartesian candidates.");
             // Cartesian product of source and target elements
             List<Pair<Element, Element>> allPairs =
                     CartesianCandidateGenerator.generate(sourceElements, targetElements);
-            LLMEnsembleFilter slmFilter =
-                    LLMEnsembleFilterFactory.createChainedFilter(configuration.candidateFilterChain(), contextStore);
+
+            LLMEnsembleFilter slmFilter = LLMEnsembleFilterFactory.createChainedFilter(
+                    candidateFilterChain,
+                    contextStore,
+                    configuration.resolveCandidateFilterMode());
             List<Pair<Element, Element>> filteredPairs = slmFilter.filterCandidates(allPairs);
             List<ClassificationTask> tasks = filteredPairs.stream()
                     .map(p -> new ClassificationTask(p.first(), p.second(), true))
@@ -423,3 +430,4 @@ public class Evaluation {
         return traceLinkIdPostProcessor;
     }
 }
+

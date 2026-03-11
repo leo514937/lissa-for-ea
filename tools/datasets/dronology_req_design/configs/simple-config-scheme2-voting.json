@@ -1,0 +1,99 @@
+﻿{
+  "cache_dir": "./cache/dronology-req-design-scheme2-voting",
+  "gold_standard_configuration": {
+    "path": "./tools/datasets/dronology_req_design/answer-subset.csv",
+    "hasHeader": "true"
+  },
+  "source_artifact_provider": {
+    "name": "text",
+    "args": {
+      "artifact_type": "requirement",
+      "path": "./tools/datasets/dronology_req_design/requirements"
+    }
+  },
+  "target_artifact_provider": {
+    "name": "text",
+    "args": {
+      "artifact_type": "software architecture documentation",
+      "path": "./tools/datasets/dronology_req_design/designs"
+    }
+  },
+  "source_preprocessor": {
+    "name": "artifact",
+    "args": {}
+  },
+  "target_preprocessor": {
+    "name": "artifact",
+    "args": {}
+  },
+  "embedding_creator": {
+    "name": "openwebui",
+    "args": {
+      "model": "text-embedding-3-small"
+    }
+  },
+  "source_store": {
+    "name": "custom",
+    "args": {}
+  },
+  "target_store": {
+    "name": "cosine_similarity",
+    "args": {
+      "max_results": "100"
+    }
+  },
+  "classifier": {
+    "name": "simple_openwebui",
+    "args": {
+      "model": "deepseek-chat",
+      "temperature": "0.0"
+    }
+  },
+  "result_aggregator": {
+    "name": "any_connection",
+    "args": {}
+  },
+  "tracelinkid_postprocessor": {
+    "name": "identity",
+    "args": {}
+  },
+  "candidate_filter_mode": "voting",
+  "candidate_filter_vote_chain": [
+    [
+      {
+        "name": "simple_openwebui",
+        "args": {
+          "model": "qwen3.5-flash",
+          "temperature": "0.0"
+        }
+      }
+    ],
+    [
+      {
+        "name": "simple_openwebui",
+        "args": {
+          "model": "qwen3.5-flash",
+          "temperature": "0.0"
+        }
+      }
+    ],
+    [
+      {
+        "name": "simple_openwebui",
+        "args": {
+          "model": "qwen3.5-flash",
+          "temperature": "0.0"
+        }
+      }
+    ],
+    [
+      {
+        "name": "simple_openwebui",
+        "args": {
+          "model": "qwen3.5-flash",
+          "temperature": "0.0"
+        }
+      }
+    ]
+  ]
+}

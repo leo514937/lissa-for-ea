@@ -4,6 +4,7 @@ package edu.kit.kastel.sdq.lissa.ratlr.classifier;
 import java.util.List;
 import java.util.Objects;
 
+import edu.kit.kastel.sdq.lissa.ratlr.configuration.CandidateFilterMode;
 import edu.kit.kastel.sdq.lissa.ratlr.configuration.ModuleConfiguration;
 import edu.kit.kastel.sdq.lissa.ratlr.context.ContextStore;
 
@@ -27,8 +28,23 @@ public final class LLMEnsembleFilterFactory {
      */
     public static LLMEnsembleFilter createChainedFilter(
             List<List<ModuleConfiguration>> stages, ContextStore contextStore) {
+        return createChainedFilter(stages, contextStore, CandidateFilterMode.LAYERED);
+    }
+
+    /**
+     * Creates a chained ensemble filter from the provided configuration using the specified mode.
+     *
+     * @param stages       configuration of classifier stages
+     * @param contextStore shared context store
+     * @param mode         candidate filter mode (voting or layered)
+     * @return an {@link LLMEnsembleFilter} instance
+     */
+    public static LLMEnsembleFilter createChainedFilter(
+            List<List<ModuleConfiguration>> stages,
+            ContextStore contextStore,
+            CandidateFilterMode mode) {
         Objects.requireNonNull(stages, "stages must not be null");
         Objects.requireNonNull(contextStore, "contextStore must not be null");
-        return new ChainedLLMEnsembleFilter(stages, contextStore, DEFAULT_MAJORITY_FRACTION);
+        return new ChainedLLMEnsembleFilter(stages, contextStore, DEFAULT_MAJORITY_FRACTION, mode);
     }
 }

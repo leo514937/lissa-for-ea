@@ -1,21 +1,21 @@
 {
-    "cache_dir": "./cache",
+    "cache_dir": "./cache/dronology-hf-cheap-after",
     "gold_standard_configuration": {
-        "path": "./tools/datasets/dronology_req_design_hf/answer-req-design-hf.csv",
-        "hasHeader": "true"
+        "path": "D:/code/lissa/tools/datasets/dronology_req_design_hf/answer-req-design-hf.csv",
+        "hasHeader": true
     },
     "source_artifact_provider": {
         "name": "text",
         "args": {
             "artifact_type": "requirement",
-            "path": "./tools/datasets/dronology_req_design_hf/requirements"
+            "path": "D:/code/lissa/tools/datasets/dronology_req_design_hf/requirements"
         }
     },
     "target_artifact_provider": {
         "name": "text",
         "args": {
-            "artifact_type": "design definition",
-            "path": "./tools/datasets/dronology_req_design_hf/designs"
+            "artifact_type": "software architecture documentation",
+            "path": "D:/code/lissa/tools/datasets/dronology_req_design_hf/designs"
         }
     },
     "source_preprocessor": {
@@ -29,7 +29,7 @@
     "embedding_creator": {
         "name": "openwebui",
         "args": {
-            "model": "nomic-ai/nomic-embed-text-v1.5:free"
+            "model": "text-embedding-3-small"
         }
     },
     "source_store": {
@@ -37,17 +37,27 @@
         "args": {}
     },
     "target_store": {
-        "name": "custom",
+        "name": "cosine_similarity",
         "args": {
-            "max_results": "4"
+            "max_results": "100"
         }
     },
     "classifier": {
         "name": "simple_openwebui",
         "args": {
-            "model": "mistralai/mistral-small-3.1-24b-instruct:free"
+            "model": "deepseek-chat"
         }
     },
+    "candidate_filter_chain": [
+        [
+            {
+                "name": "simple_openwebui",
+                "args": {
+                    "model": "qwen-flash-free"
+                }
+            }
+        ]
+    ],
     "result_aggregator": {
         "name": "any_connection",
         "args": {}
@@ -55,15 +65,5 @@
     "tracelinkid_postprocessor": {
         "name": "identity",
         "args": {}
-    },
-    "candidate_filter_chain": [
-        [
-            {
-                "name": "simple_openwebui",
-                "args": {
-                    "model": "google/gemma-2-9b-it:free"
-                }
-            }
-        ]
-    ]
+    }
 }

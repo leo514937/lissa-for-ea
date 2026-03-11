@@ -1,5 +1,5 @@
 ﻿{
-  "cache_dir": "./cache-r2c/eANCI-133742243",
+  "cache_dir": "./cache-r2c/eANCI-133742243_scheme2_voting",
   "gold_standard_configuration": {
     "path": "./datasets/req2code/eANCI/answer.csv",
     "hasHeader": "false"
@@ -39,7 +39,7 @@
   "target_store": {
     "name": "cosine_similarity",
     "args": {
-      "max_results": "40"
+      "max_results": "100"
     }
   },
   "classifier": {
@@ -56,5 +56,44 @@
   "tracelinkid_postprocessor": {
     "name": "identity",
     "args": {}
-  }
+  },
+  "candidate_filter_mode": "voting",
+  "candidate_filter_vote_chain": [
+    [
+      {
+        "name": "simple_openwebui",
+        "args": {
+          "model": "google/gemini-2.0-flash-exp:free",
+          "temperature": "0.0"
+        }
+      }
+    ],
+    [
+      {
+        "name": "simple_openwebui",
+        "args": {
+          "model": "google/gemini-2.0-flash-exp:free",
+          "temperature": "0.0"
+        }
+      }
+    ],
+    [
+      {
+        "name": "simple_openwebui",
+        "args": {
+          "model": "google/gemini-2.0-flash-exp:free",
+          "temperature": "0.0"
+        }
+      }
+    ],
+    [
+      {
+        "name": "simple_openwebui",
+        "args": {
+          "model": "google/gemini-2.0-flash-exp:free",
+          "temperature": "0.0"
+        }
+      }
+    ]
+  ]
 }

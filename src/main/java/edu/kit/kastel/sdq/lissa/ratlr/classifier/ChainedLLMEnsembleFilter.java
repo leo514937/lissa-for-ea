@@ -34,6 +34,7 @@ public class ChainedLLMEnsembleFilter implements LLMEnsembleFilter {
 
     private final List<List<Classifier>> stages;
     private final double majorityFraction;
+    private final edu.kit.kastel.sdq.lissa.ratlr.configuration.CandidateFilterMode mode;
 
     /**
      * Creates a new chained ensemble filter.
@@ -41,9 +42,13 @@ public class ChainedLLMEnsembleFilter implements LLMEnsembleFilter {
      * @param configs          configuration of classifier stages; each inner list represents a stage
      * @param contextStore     shared context store used to create classifiers
      * @param majorityFraction fraction in (0,1] used as voting threshold; 0.5 means strict majority
+     * @param mode             candidate filter mode (voting or layered)
      */
     public ChainedLLMEnsembleFilter(
-            List<List<ModuleConfiguration>> configs, ContextStore contextStore, double majorityFraction) {
+            List<List<ModuleConfiguration>> configs,
+            ContextStore contextStore,
+            double majorityFraction,
+            edu.kit.kastel.sdq.lissa.ratlr.configuration.CandidateFilterMode mode) {
         Objects.requireNonNull(configs, "configs must not be null");
         Objects.requireNonNull(contextStore, "contextStore must not be null");
         if (configs.isEmpty()) {
@@ -57,6 +62,9 @@ public class ChainedLLMEnsembleFilter implements LLMEnsembleFilter {
         if (majorityFraction <= 0.0 || majorityFraction > 1.0) {
             throw new IllegalArgumentException("majorityFraction must be in (0,1], but was " + majorityFraction);
         }
+        this.mode = mode == null
+                ? edu.kit.kastel.sdq.lissa.ratlr.configuration.CandidateFilterMode.LAYERED
+                : mode;
         this.stages = configs.stream()
                 .map(stageConfigs -> stageConfigs.stream()
                         .map(cfg -> Classifier.createClassifier(cfg, contextStore))
@@ -69,6 +77,39 @@ public class ChainedLLMEnsembleFilter implements LLMEnsembleFilter {
     public List<Pair<Element, Element>> filterCandidates(List<Pair<Element, Element>> candidates) {
         Objects.requireNonNull(candidates, "candidates must not be null");
         List<Pair<Element, Element>> current = new ArrayList<>(candidates);
+
+        if (mode == edu.kit.kastel.sdq.lissa.ratlr.configuration.CandidateFilterMode.VOTING) {
+            if (stages.size() < 2) {
+                throw new IllegalArgumentException(
+                        "Voting mode requires at least two stages: one pre-filter stage and one voting stage.");
+            }
+            if (stages.get(0).size() != 1) {
+                throw new IllegalArgumentException(
+                        "Voting mode requires the first stage to contain exactly one classifier.");
+            }
+            logger.info(
+                    "SLM ensemble filter (voting): running pre-filter stage with 1 classifier and {} candidates",
+                    current.size());
+            current = filterStage(current, stages.get(0));
+            if (current.isEmpty()) {
+                logger.info("SLM ensemble filter (voting): no candidates left after pre-filter stage.");
+                return current;
+            }
+
+            List<Classifier> votingClassifiers = new ArrayList<>();
+            for (int i = 1; i < stages.size(); i++) {
+                votingClassifiers.addAll(stages.get(i));
+            }
+            if (votingClassifiers.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Voting mode requires at least one classifier in the voting stage.");
+            }
+            logger.info(
+                    "SLM ensemble filter (voting): running voting stage with {} classifiers and {} candidates",
+                    votingClassifiers.size(),
+                    current.size());
+            return filterStage(current, votingClassifiers);
+        }
 
         int stageIndex = 0;
         for (List<Classifier> stage : stages) {

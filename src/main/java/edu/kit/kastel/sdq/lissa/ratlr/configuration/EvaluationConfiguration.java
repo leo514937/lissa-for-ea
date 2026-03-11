@@ -104,7 +104,24 @@ public record EvaluationConfiguration(
          * sequentially with per-stage majority voting semantics.
          * </p>
          */
-        @JsonProperty("candidate_filter_chain") @Nullable List<List<ModuleConfiguration>> candidateFilterChain)
+        @JsonProperty("candidate_filter_chain") @Nullable List<List<ModuleConfiguration>> candidateFilterChain,
+
+        /**
+         * Optional mode switch for candidate filtering.
+         */
+        @JsonProperty("candidate_filter_mode") @Nullable CandidateFilterMode candidateFilterMode,
+
+        /**
+         * Candidate filter chain for voting mode.
+         */
+        @JsonProperty("candidate_filter_vote_chain")
+                @Nullable List<List<ModuleConfiguration>> candidateFilterVoteChain,
+
+        /**
+         * Candidate filter chain for layered mode.
+         */
+        @JsonProperty("candidate_filter_layered_chain")
+                @Nullable List<List<ModuleConfiguration>> candidateFilterLayeredChain)
         implements EvaluationConfigurationBuilder.With, SerializableConfiguration {
 
     /**
@@ -145,6 +162,20 @@ public record EvaluationConfiguration(
                 }
             }
         }
+        if (candidateFilterVoteChain != null) {
+            for (var stage : candidateFilterVoteChain) {
+                for (var module : stage) {
+                    module.finalizeForSerialization();
+                }
+            }
+        }
+        if (candidateFilterLayeredChain != null) {
+            for (var stage : candidateFilterLayeredChain) {
+                for (var module : stage) {
+                    module.finalizeForSerialization();
+                }
+            }
+        }
 
         try {
             return new ObjectMapper()
@@ -177,7 +208,10 @@ public record EvaluationConfiguration(
                 + classifiers + ", resultAggregator="
                 + resultAggregator + ", traceLinkIdPostprocessor="
                 + traceLinkIdPostprocessor + ", candidateFilterChain="
-                + candidateFilterChain + '}';
+                + candidateFilterChain + ", candidateFilterMode="
+                + candidateFilterMode + ", candidateFilterVoteChain="
+                + candidateFilterVoteChain + ", candidateFilterLayeredChain="
+                + candidateFilterLayeredChain + '}';
     }
 
     /**
@@ -197,5 +231,30 @@ public record EvaluationConfiguration(
         return classifier != null
                 ? Classifier.createClassifier(classifier, contextStore)
                 : Classifier.createMultiStageClassifier(classifiers, contextStore);
+    }
+
+    /**
+     * Resolves the candidate filter chain based on the configured mode.
+     * If no mode is set, the legacy candidate_filter_chain is returned.
+     *
+     * @return the selected candidate filter chain, or null if none is configured
+     */
+    public @Nullable List<List<ModuleConfiguration>> resolveCandidateFilterChain() {
+        if (candidateFilterMode == null) {
+            return candidateFilterChain;
+        }
+        return switch (candidateFilterMode) {
+            case VOTING -> candidateFilterVoteChain;
+            case LAYERED -> candidateFilterLayeredChain;
+        };
+    }
+
+    /**
+     * Resolves the candidate filter mode with a default for legacy configs.
+     *
+     * @return the resolved candidate filter mode
+     */
+    public CandidateFilterMode resolveCandidateFilterMode() {
+        return candidateFilterMode == null ? CandidateFilterMode.LAYERED : candidateFilterMode;
     }
 }
